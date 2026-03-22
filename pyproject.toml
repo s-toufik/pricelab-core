@@ -1,0 +1,34 @@
+[project]
+name = "pricer"
+version = "0.1.0"
+description = "market price analysis system"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "numpy",
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy>=2.0",
+    "asyncpg",
+    "httpx",
+    "pydantic>=2",
+    "python-dotenv",
+    "openai",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "hypothesis>=6.151.9",
+    "pytest-asyncio",
+    "ruff",
+    "mypy"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
