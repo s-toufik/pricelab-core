@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 
-from src.ports.outbound.dictionary_serializer import SerializableDataclass
-
-
 @dataclass(frozen=True, slots=True)
-class MarketPrice(SerializableDataclass):
+class MarketPrice:
     source: str
     symbol: str
     timestamp: int
