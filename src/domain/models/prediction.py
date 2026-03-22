@@ -1,11 +1,8 @@
 import math
 from dataclasses import dataclass
 
-from src.ports.outbound.dictionary_serializer import SerializableDataclass
-
-
 @dataclass(frozen=True, slots=True)
-class Prediction(SerializableDataclass):
+class Prediction:
     symbol: str
     predicted_price: float
     confidence: float
