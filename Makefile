@@ -18,3 +18,18 @@ lint:
 
 format:
 	uv run ruff format .
+
+build:
+	rm -rf dist
+	rm -rf src/*.egg-info
+	uv build
+
+publish_dev:
+	UV_PUBLISH_TOKEN=$$UV_TEST_PUBLISH_TOKEN
+	uv publish --publish-url https://test.pypi.org/legacy/
+
+publish:
+	@echo "INFO: Make sure that UV_PUBLISH_TOKEN env variable is set"
+	UV_PUBLISH_TOKEN=$$UV_RELEASE_PUBLISH_TOKEN
+	uv publish
+

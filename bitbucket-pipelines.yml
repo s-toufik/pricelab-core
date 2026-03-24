@@ -1,0 +1,62 @@
+image: python:3.14
+
+pipelines:
+  branches:
+    "{main,develop}":
+      - step:
+          name: ⚡ PREPARE ENV
+          caches:
+            - pip
+            - uv-cache
+          script:
+            - pip install --upgrade pip
+            - pip install uv
+            - uv venv --python 3.14
+            - source .venv/bin/activate
+            - uv sync
+          artifacts:
+            - .venv/**
+
+      - step:
+          name: 🧪 TEST
+          caches:
+            - pip
+          script:
+            - pip install uv
+            - source .venv/bin/activate
+            - uv run pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
+
+      - step:
+          name: 📦 BUILD
+          caches:
+            - pip
+          script:
+            - pip install uv
+            - source .venv/bin/activate
+            - uv build
+          artifacts:
+            - dist/**
+            - .venv/**
+
+      - step:
+          name: 🚀 PUBLISH
+          deployment: production
+          caches:
+            - pip
+          script:
+            - pip install uv
+            - source .venv/bin/activate
+            - |
+              if [ "$BITBUCKET_BRANCH" = "develop" ]; then
+                echo "Publishing to TestPyPI..."
+                export UV_PUBLISH_TOKEN="$UV_TEST_PYPI_TOKEN"
+                uv publish --publish-url https://test.pypi.org/legacy/
+              else
+                echo "Publishing to PyPI..."
+                export UV_PUBLISH_TOKEN="$UV_RELEASE_PYPI_TOKEN"
+                uv publish
+              fi
+
+definitions:
+  caches:
+    uv-cache: ~/.cache/uv
