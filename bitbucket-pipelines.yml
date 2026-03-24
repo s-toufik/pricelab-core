@@ -12,10 +12,8 @@ pipelines:
             # Only run if tag is on 'develop'
             - echo "Tag: $BITBUCKET_TAG"
             - echo "Branch: $BITBUCKET_BRANCH"
-            - if [ "$BITBUCKET_BRANCH" != "develop" ]; then
-              echo "Tag is not on develop branch. Skipping pipeline.";
-              exit 0;
-              fi
+            - 'if [ "$BITBUCKET_BRANCH" != "develop" ]; then echo "Tag is not on develop branch. Skipping pipeline."; exit 0; fi'
+            - pip install --upgrade pip
 
             # Install uv and create virtual environment
             - pip install --upgrade pip
