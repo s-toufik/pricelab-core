@@ -1,9 +1,21 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "pricer"
+name = "price-platform-core"
 version = "0.1.0"
+authors = [
+    { name="Toufik Saouchi", email="toufik.saouchi@gmail.com" },
+]
 description = "market price analysis system"
 readme = "README.md"
 requires-python = ">=3.14"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
 dependencies = [
     "numpy",
     "fastapi",
@@ -33,3 +45,9 @@ target-version = "py314"
 [tool.mypy]
 python_version = "3.14"
 strict = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.urls]
+Homepage = "https://bitbucket.org/stoufik/shared-domain"
