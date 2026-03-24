@@ -18,3 +18,13 @@ lint:
 
 format:
 	uv run ruff format .
+
+build:
+	uv build
+
+rebuild:
+	rm -rf dist
+	uv build
+
+publish:
+	uv publish
