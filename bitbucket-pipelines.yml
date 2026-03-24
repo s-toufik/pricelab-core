@@ -1,64 +1,56 @@
 image: python:3.14
 
 pipelines:
-  tags:
-    "*.*.*":
-      - step: &prepare
-          name: ⚡ PREPARE ENV
-          caches:
-            - pip
-            - uv-cache
-          script:
-            # Only run if tag is on 'develop'
-            - echo "Tag: $BITBUCKET_TAG"
-            - echo "Branch: $BITBUCKET_BRANCH"
-            - 'if [ "$BITBUCKET_BRANCH" != "develop" ]; then echo "Tag is not on develop branch. Skipping pipeline."; exit 0; fi'
-            - pip install --upgrade pip
+  default:
+    - step:
+        name: ⚡ PREPARE ENV
+        caches:
+          - pip
+          - uv-cache
+        script:
+          # Install uv and create virtual environment
+          - pip install --upgrade pip
+          - pip install uv
+          - uv venv --python 3.14
+          - source .venv/bin/activate
 
-            # Install uv and create virtual environment
-            - pip install --upgrade pip
-            - pip install uv
-            - uv venv --python 3.14
-            - source .venv/bin/activate
+          # Install all dependencies once
+          - uv sync
+        artifacts:
+          - .venv/**  # Save the virtual env for next stages
+          
+    - step:
+        name: 🧪 TEST
+        caches:
+          - pip
+          - uv-cache
+        script:
+          - source .venv/bin/activate
+          - uv pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
+        artifacts:
+          - .venv/**
 
-            # Install all dependencies once
-            - uv sync
+    - step:
+        name: 📦 BUILD
+        caches:
+          - pip
+          - uv-cache
+        script:
+          - source .venv/bin/activate
+          - uv build
+        artifacts:
+          - dist/**
+          - .venv/**
 
-          artifacts:
-            - .venv/**  # Save the virtual env for next stages
-
-      - step: &test
-          name: 🧪 TEST
-          caches:
-            - pip
-            - uv-cache
-          script:
-            - source .venv/bin/activate
-            - uv pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
-          artifacts:
-            - .venv/**
-
-      - step: &build
-          name: 📦 BUILD
-          caches:
-            - pip
-            - uv-cache
-          script:
-            - source .venv/bin/activate
-            - uv build
-          artifacts:
-            - dist/**
-            - .venv/**
-
-      - step: &publish
-          name: 🚀 PUBLISH
-          deployment: production
-          caches:
-            - pip
-            - uv-cache
-          script:
-            - source .venv/bin/activate
-            - uv publish
+    - step:
+        name: 🚀 PUBLISH
+        deployment: production
+        caches:
+          - pip
+          - uv-cache
+        script:
+          - source .venv/bin/activate
+          - uv publish
 
 definitions:
   caches:
