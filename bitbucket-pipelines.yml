@@ -1,53 +1,56 @@
 image: python:3.14
 
 pipelines:
-  default:
-    - step:
-        name: ⚡ PREPARE ENV
-        caches:
-          - pip
-          - uv-cache
-        script:
-          - pip install --upgrade pip
-          - pip install uv
-          - uv venv --python 3.14
-          - source .venv/bin/activate
-          - uv sync
-        artifacts:
-          - .venv/**
+  tags:
+    "*.*.*-*":
+      - step:
+          name: ⚡ PREPARE ENV
+          caches:
+            - pip
+            - uv-cache
+          script:
+            - BRANCH=$(git branch -r --contains $BITBUCKET_COMMIT | grep -E 'origin/(main|develop)' | head -1)
+            - if [ -z "$BRANCH" ]; then echo "Tag not on main or develop. Aborting." && exit 1; fi
+            - pip install --upgrade pip
+            - pip install uv
+            - uv venv --python 3.14
+            - source .venv/bin/activate
+            - uv sync
+          artifacts:
+            - .venv/**
 
-    - step:
-        name: 🧪 TEST
-        caches:
-          - pip
-        script:
-          - pip install uv
-          - source .venv/bin/activate
-          - uv run pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
-        artifacts:
-          - .venv/**
+      - step:
+          name: 🧪 TEST
+          caches:
+            - pip
+          script:
+            - pip install uv
+            - source .venv/bin/activate
+            - uv run pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
+          artifacts:
+            - .venv/**
 
-    - step:
-        name: 📦 BUILD
-        caches:
-          - pip
-        script:
-          - pip install uv
-          - source .venv/bin/activate
-          - uv build
-        artifacts:
-          - dist/**
-          - .venv/**
+      - step:
+          name: 📦 BUILD
+          caches:
+            - pip
+          script:
+            - pip install uv
+            - source .venv/bin/activate
+            - uv build
+          artifacts:
+            - dist/**
+            - .venv/**
 
-    - step:
-        name: 🚀 PUBLISH
-        deployment: production
-        caches:
-          - pip
-        script:
-          - pip install uv
-          - source .venv/bin/activate
-          - uv publish
+      - step:
+          name: 🚀 PUBLISH
+          deployment: production
+          caches:
+            - pip
+          script:
+            - pip install uv
+            - source .venv/bin/activate
+            - uv publish
 
 definitions:
   caches:
