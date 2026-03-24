@@ -1,17 +1,14 @@
 image: python:3.14
 
 pipelines:
-  tags:
-    "*.*.*":
+  branches:
+    "{main,develop}":
       - step:
           name: ⚡ PREPARE ENV
           caches:
             - pip
             - uv-cache
           script:
-            - git fetch --unshallow || true
-            - BRANCH=$(git branch -r --contains $BITBUCKET_COMMIT | grep -E 'origin/(main|develop)' | head -1)
-            - if [ -z "$BRANCH" ]; then echo "Tag not on main or develop. Aborting." && exit 1; fi
             - pip install --upgrade pip
             - pip install uv
             - uv venv --python 3.14
@@ -28,8 +25,6 @@ pipelines:
             - pip install uv
             - source .venv/bin/activate
             - uv run pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
-          artifacts:
-            - .venv/**
 
       - step:
           name: 📦 BUILD
@@ -52,12 +47,12 @@ pipelines:
             - pip install uv
             - source .venv/bin/activate
             - |
-              if echo "$BITBUCKET_TAG" | grep -qE '\.(dev|a|b|rc)'; then
-                echo "Pre-release detected, publishing to TestPyPI..."
+              if [ "$BITBUCKET_BRANCH" = "develop" ]; then
+                echo "Publishing to TestPyPI..."
                 export UV_PUBLISH_TOKEN="$UV_TEST_PYPI_TOKEN"
                 uv publish --publish-url https://test.pypi.org/legacy/
               else
-                echo "Stable release, publishing to PyPI..."
+                echo "Publishing to PyPI..."
                 export UV_PUBLISH_TOKEN="$UV_RELEASE_PYPI_TOKEN"
                 uv publish
               fi
