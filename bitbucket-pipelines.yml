@@ -1,4 +1,4 @@
-image: python:3.14
+image: python:3.13
 
 pipelines:
   default:
@@ -11,7 +11,7 @@ pipelines:
           # Install uv and create virtual environment
           - pip install --upgrade pip
           - pip install uv
-          - uv venv --python 3.14
+          - uv venv --python 3.13
           - source .venv/bin/activate
 
           # Install all dependencies once
@@ -21,20 +21,14 @@ pipelines:
           
     - step:
         name: 🧪 TEST
-        caches:
-          - pip
-          - uv-cache
         script:
           - source .venv/bin/activate
-          - uv pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
+          - uv run pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
         artifacts:
           - .venv/**
 
     - step:
         name: 📦 BUILD
-        caches:
-          - pip
-          - uv-cache
         script:
           - source .venv/bin/activate
           - uv build
@@ -45,9 +39,6 @@ pipelines:
     - step:
         name: 🚀 PUBLISH
         deployment: production
-        caches:
-          - pip
-          - uv-cache
         script:
           - source .venv/bin/activate
           - uv publish
