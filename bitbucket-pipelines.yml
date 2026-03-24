@@ -2,7 +2,7 @@ image: python:3.14
 
 pipelines:
   tags:
-    "*.*.*-*":
+    "*.*.*":
       - step:
           name: ⚡ PREPARE ENV
           caches:
@@ -50,6 +50,14 @@ pipelines:
           script:
             - pip install uv
             - source .venv/bin/activate
+            - |
+              if echo "$BITBUCKET_TAG" | grep -qE '\.(dev|a|b|rc)'; then
+                echo "Pre-release detected, publishing to TestPyPI..."
+                uv publish --publish-url https://test.pypi.org/legacy/
+              else
+                echo "Stable release, publishing to PyPI..."
+                uv publish
+              fi
             - uv publish
 
 definitions:
