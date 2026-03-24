@@ -1,4 +1,4 @@
-image: python:3.13
+image: python:3.14
 
 pipelines:
   default:
@@ -10,12 +10,12 @@ pipelines:
         script:
           - pip install --upgrade pip
           - pip install uv
-          - uv venv --python 3.13
+          - uv venv --python 3.14
           - source .venv/bin/activate
           - uv sync
         artifacts:
           - .venv/**
-          
+
     - step:
         name: 🧪 TEST
         caches:
