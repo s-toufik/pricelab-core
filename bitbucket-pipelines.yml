@@ -58,7 +58,6 @@ pipelines:
                 echo "Stable release, publishing to PyPI..."
                 uv publish
               fi
-            - uv publish
 
 definitions:
   caches:
