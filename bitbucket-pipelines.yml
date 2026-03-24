@@ -54,9 +54,11 @@ pipelines:
             - |
               if echo "$BITBUCKET_TAG" | grep -qE '\.(dev|a|b|rc)'; then
                 echo "Pre-release detected, publishing to TestPyPI..."
+                export UV_PUBLISH_TOKEN="$UV_TEST_PYPI_TOKEN"
                 uv publish --publish-url https://test.pypi.org/legacy/
               else
                 echo "Stable release, publishing to PyPI..."
+                export UV_PUBLISH_TOKEN="$UV_RELEASE_PYPI_TOKEN"
                 uv publish
               fi
 
