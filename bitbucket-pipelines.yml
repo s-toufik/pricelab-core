@@ -49,11 +49,11 @@ pipelines:
             - |
               if [ "$BITBUCKET_BRANCH" = "develop" ]; then
                 echo "Publishing to TestPyPI..."
-                export UV_PUBLISH_TOKEN="$UV_TEST_PYPI_TOKEN"
+                export UV_PUBLISH_TOKEN="$TEST_PYPI_TOKEN"
                 uv publish --publish-url https://test.pypi.org/legacy/
               else
                 echo "Publishing to PyPI..."
-                export UV_PUBLISH_TOKEN="$UV_RELEASE_PYPI_TOKEN"
+                export UV_PUBLISH_TOKEN="$RELEASE_PYPI_TOKEN"
                 uv publish
               fi
 
