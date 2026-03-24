@@ -8,20 +8,20 @@ pipelines:
           - pip
           - uv-cache
         script:
-          # Install uv and create virtual environment
           - pip install --upgrade pip
           - pip install uv
           - uv venv --python 3.13
           - source .venv/bin/activate
-
-          # Install all dependencies once
           - uv sync
         artifacts:
-          - .venv/**  # Save the virtual env for next stages
+          - .venv/**
           
     - step:
         name: 🧪 TEST
+        caches:
+          - pip
         script:
+          - pip install uv
           - source .venv/bin/activate
           - uv run pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
         artifacts:
@@ -29,7 +29,10 @@ pipelines:
 
     - step:
         name: 📦 BUILD
+        caches:
+          - pip
         script:
+          - pip install uv
           - source .venv/bin/activate
           - uv build
         artifacts:
@@ -39,7 +42,10 @@ pipelines:
     - step:
         name: 🚀 PUBLISH
         deployment: production
+        caches:
+          - pip
         script:
+          - pip install uv
           - source .venv/bin/activate
           - uv publish
 
