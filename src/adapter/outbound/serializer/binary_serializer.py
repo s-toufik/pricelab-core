@@ -2,7 +2,7 @@ import msgpack
 from typing import TypeVar, Type
 from dataclasses import asdict
 
-from src.ports.outbound.serializer import Serializer
+from src.port.outbound.serializer import Serializer
 
 T = TypeVar("T")
 class BinarySerializer(Serializer):
