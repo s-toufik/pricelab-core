@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
+from src.domain.model.base_market_data import BaseMarketData
+
+
 @dataclass(frozen=True, slots=True)
-class MarketPrice:
-    source: str
-    symbol: str
-    timestamp: int
+class Quote(BaseMarketData):
     bid: float
     ask: float
     last: float
