@@ -14,9 +14,7 @@ class CandleSeries(BaseMarketSeriesData):
 
     def _get(self, field: str, func: Callable[[], T]) -> T:
         if field not in self._cache:
-            print("1", field)
             with self._lock:
-                print("2", field)
                 if field not in self._cache:
                     self._cache[field] = func()
 
