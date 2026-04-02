@@ -14,7 +14,7 @@ def run_quote_usecase():
     cli = AnalyticsCLI(use_case, {"window": 2})
 
     quotes = [
-        Quote(source="NASDAQ", symbol="AAPL", timestamp="-2026-03-30T10:00:00Z", bid=175.0, ask=175.5, last=175.2,
+        Quote(source="NASDAQ", symbol="AAPL", timestamp="2026-03-30T10:00:00Z", bid=175.0, ask=175.5, last=175.2,
               volume=1000),
         # Quote(source="NASDAQ", symbol="AAPL", timestamp="2026-03-30T10:01:00Z", bid=175.2, ask=175.6, last=175.4,
         #       volume=1200),

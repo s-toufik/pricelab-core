@@ -3,8 +3,8 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "price-platform-core"
-version = "0.1.0.dev1"
+name = "shared-core"
+version = "0.1.0.dev2"
 authors = [
     { name="Toufik Saouchi", email="toufik.saouchi@gmail.com" },
 ]
@@ -51,4 +51,4 @@ strict = true
 where = ["src"]
 
 [project.urls]
-Homepage = "https://bitbucket.org/stoufik/shared-domain"
+Homepage = "https://bitbucket.org/stoufik/shared-core"
