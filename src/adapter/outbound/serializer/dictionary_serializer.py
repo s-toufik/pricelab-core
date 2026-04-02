@@ -8,8 +8,10 @@ T = TypeVar("T")
 
 class DictionarySerializer(Serializer):
 
+    @staticmethod
     def serialize(inputs: T) -> dict:
         return asdict(inputs)
 
+    @staticmethod
     def deserialize(inputs: dict, cls: Type[T]) -> T:
         return cls(**inputs)

@@ -9,8 +9,10 @@ T = TypeVar("T")
 
 class JSONSerializer(Serializer):
 
+    @staticmethod
     def serialize(inputs: T) -> str:
         return json.dumps(asdict(inputs))
 
+    @staticmethod
     def deserialize(inputs: str, cls: Type[T]) -> T:
         return cls(**json.loads(inputs))
