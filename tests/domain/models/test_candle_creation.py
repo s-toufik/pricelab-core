@@ -1,14 +1,15 @@
 from typing import Sequence
 
 import pytest
+from src.domain.model.candles.candle import Candle
 from hypothesis import given
 
-from domain.model.candles.candle import Candle
 from tests.domain.models.candles_generator import candles_strategy
+
 
 class TestCandleCreation:
 
-    @given(candles = candles_strategy(min_size=1, max_size=1))
+    @given(candles=candles_strategy(min_size=1, max_size=1))
     def test_candle_field_type(self, candles: Sequence[Candle]) -> None:
         for candle in candles:
             assert isinstance(candle.source, str)
@@ -20,24 +21,24 @@ class TestCandleCreation:
             assert isinstance(candle.close, float)
             assert isinstance(candle.volume, float)
 
-    @given(candles = candles_strategy(min_size=1, max_size=1))
+    @given(candles=candles_strategy(min_size=1, max_size=1))
     def test_candle_immutability(self, candles) -> None:
         with pytest.raises(AttributeError):
             for candle in candles:
                 candle.open = 0.0
 
-    @given(candles = candles_strategy(min_size=1, max_size=1))
+    @given(candles=candles_strategy(min_size=1, max_size=1))
     def test_candle_equality(self, candles: Sequence[Candle]) -> None:
         candle = candles[0]
         same_candle = Candle(
-            source = candle.source,
-            symbol = candle.symbol,
-            timestamp = candle.timestamp,
-            open = candle.open,
-            high = candle.high,
-            low = candle.low,
-            close = candle.close,
-            volume = candle.volume
+            source=candle.source,
+            symbol=candle.symbol,
+            timestamp=candle.timestamp,
+            open=candle.open,
+            high=candle.high,
+            low=candle.low,
+            close=candle.close,
+            volume=candle.volume
         )
         assert candle == same_candle
 

@@ -1,8 +1,8 @@
 from dataclasses import fields
 from typing import Sequence
 
-from domain.dto.validation_status import ValidationStatus
-from domain.model.quotes.quote_series import QuoteSeries
+from src.domain.dto.validation_status import ValidationStatus
+from src.domain.model.quotes.quote_series import QuoteSeries
 
 
 class QuoteSeriesValidator:

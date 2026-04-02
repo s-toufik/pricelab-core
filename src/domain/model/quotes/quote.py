@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from domain.model.base.base_market_data import BaseMarketData
+from src.domain.model.base.base_market_data import BaseMarketData
+
 
 @dataclass(frozen=True, slots=True)
 class Quote(BaseMarketData):

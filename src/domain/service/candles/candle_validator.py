@@ -1,7 +1,7 @@
 import datetime
 
-from domain.dto.validation_status import ValidationStatus
-from domain.model.candles.candle import Candle
+from src.domain.dto.validation_status import ValidationStatus
+from src.domain.model.candles.candle import Candle
 
 
 class CandleValidator:

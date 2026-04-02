@@ -1,14 +1,15 @@
 import threading
 
-from application.port.outbound.logger_interface import LoggerInterface
 from loguru import logger as loguru_logger
 
-class LoguruLogger(LoggerInterface):
+from src.application.port.outbound.logger.logger_interface import LoggerInterface
 
+
+class LoguruLogger(LoggerInterface):
     _instance = None
     _lock = threading.Lock()
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args):
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -20,20 +21,20 @@ class LoguruLogger(LoggerInterface):
     def __init__logger(self):
         self._logger = loguru_logger
 
-    def info(self, msg: str, **kwargs):
+    def info(self, msg: str):
         self._logger.opt(depth=1).info(msg)
 
-    def warning(self, msg: str, **kwargs) -> None:
+    def warning(self, msg: str) -> None:
         self._logger.opt(depth=1).warning(msg)
 
-    def error(self, msg: str, **kwargs) -> None:
+    def error(self, msg: str) -> None:
         self._logger.opt(depth=1).error(msg)
 
-    def critical(self, msg: str, **kwargs) -> None:
+    def critical(self, msg: str) -> None:
         self._logger.opt(depth=1).critical(msg)
 
-    def debug(self, msg: str, **kwargs) -> None:
+    def debug(self, msg: str) -> None:
         self._logger.opt(depth=1).debug(msg)
 
-    def exception(self, msg: str, **kwargs) -> None:
+    def exception(self, msg: str) -> None:
         self._logger.opt(depth=1).exception(msg)

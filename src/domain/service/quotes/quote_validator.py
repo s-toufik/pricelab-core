@@ -1,7 +1,8 @@
 import datetime
 
-from domain.dto.validation_status import ValidationStatus
-from domain.model.quotes.quote import Quote
+from src.domain.dto.validation_status import ValidationStatus
+from src.domain.model.quotes.quote import Quote
+
 
 class QuoteValidator:
 

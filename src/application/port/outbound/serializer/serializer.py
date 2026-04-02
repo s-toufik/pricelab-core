@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from typing import TypeVar, Type
 
 T = TypeVar("T")
+
+
 class Serializer(ABC):
 
     @staticmethod

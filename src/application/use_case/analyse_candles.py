@@ -1,20 +1,20 @@
 from dataclasses import fields
 from typing import Sequence, Tuple
 
-from adapter.outbound.loguru.loguru_logger import LoguruLogger as Logger
-from application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
-from application.port.outbound.sequence_analytics_engine import SequenceAnalyticsEngine
-from domain.model.candles.candle import Candle
-from domain.model.candles.candle_series import CandleSeries
-from domain.model.analytics.analytics import Analytics
-from domain.service.candles.candle_series_validator import CandleSeriesValidator
-from domain.service.candles.candle_validator import CandleValidator
+from src.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
+from src.adapter.outbound.logger.loguru_logger import LoguruLogger as Logger
+from src.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
+from src.domain.model.analytics.analytics import Analytics
+from src.domain.model.candles.candle import Candle
+from src.domain.model.candles.candle_series import CandleSeries
+from src.domain.service.candles.candle_series_validator import CandleSeriesValidator
+from src.domain.service.candles.candle_validator import CandleValidator
 
 
 class AnalyseCandles(AnalyseSeriesUseCase):
 
-    def __init__(self, computation_engine: SequenceAnalyticsEngine) -> None:
-        self._computation_engine = computation_engine
+    def __init__(self) -> None:
+        self._computation_engine = StartComputeEngine().engine
         self._candle_validator = CandleValidator()
         self._candle_sequence_validator = CandleSeriesValidator()
         self._logger = Logger()
@@ -35,16 +35,18 @@ class AnalyseCandles(AnalyseSeriesUseCase):
                 candle_series.low.append(low)
                 candle_series.close.append(close)
                 candle_series.volumes.append(candle.volume)
-                candle_series.typical_price.append((high + low + close)/3)
+                candle_series.typical_price.append((high + low + close) / 3)
                 candle_series.spread.append(high - low)
             else:
                 self._logger.error(validat_candle.exception.__str__())
 
         if validat_candle_sequence := self._candle_sequence_validator.is_valid_for_analysis(candle_series):
             window = params.get('window', 2)
+            kind = params.get('kind', 'linear')
+            dx = params.get('dx', 0.2)
             symbol = candle_series.symbol
             source = candle_series.source
-            time = self._computation_engine.to_array(candle_series.time)
+            time = candle_series.time
 
             result = []
             for field in fields(CandleSeries):
@@ -56,11 +58,12 @@ class AnalyseCandles(AnalyseSeriesUseCase):
                             source=source,
                             name=field.name,
                             time=time,
-                            value=self._computation_engine.to_array(field_value),
-                            log_returns=self._computation_engine.log_returns(field_value),
-                            rolling_average=self._computation_engine.rolling_average(field_value, window = window),
-                            rolling_standard_deviation=self._computation_engine.rolling_standard_deviation(field_value, window = window),
-                            window=window
+                            value=field_value,
+                            log_returns=list(self._computation_engine.log_returns(field_value)),
+                            rolling_average=list(self._computation_engine.rolling_average(field_value, window=window)),
+                            rolling_standard_deviation=list(self._computation_engine.rolling_standard_deviation(field_value,window=window)),
+                            interpolation=list(self._computation_engine.interpolate(field_value, kind=kind)),
+                            integration=self._computation_engine.integrate(field_value, dx=dx)
                         )
                     )
             return tuple(result)

@@ -4,7 +4,8 @@ from typing import Sequence, TypeVar, Any
 
 Numeric = TypeVar("Numeric", bound=numbers.Real)
 
-class SequenceAnalyticsEngine(ABC):
+
+class ArithmeticEngine(ABC):
 
     @abstractmethod
     def to_array(self, sequence: Sequence[Any]) -> Sequence[Any]:

@@ -2,13 +2,13 @@ import numbers
 from typing import Sequence, TypeVar, Any
 
 import numpy as np
-from numpy import ndarray
 
-from application.port.outbound.sequence_analytics_engine import SequenceAnalyticsEngine
+from src.application.port.outbound.computation_engine.arithmetic_computation_engine import ArithmeticEngine
 
 Numeric = TypeVar("Numeric", bound=numbers.Real)
 
-class NumpySequenceAnalyticsEngine(SequenceAnalyticsEngine):
+
+class NumPyArithmeticEngine(ArithmeticEngine):
 
     def to_array(self, sequence: Sequence[Any]) -> np.ndarray:
         return self._as_array(sequence)
@@ -23,7 +23,6 @@ class NumpySequenceAnalyticsEngine(SequenceAnalyticsEngine):
         ratio = array[1:] / array[:-1]
         ratio = np.where(ratio <= 0, np.nan, ratio)
         return np.log(ratio)
-
 
     def rolling_average(self, sequence: Sequence[Numeric], window: int = 5) -> np.ndarray:
         if len(sequence) < window:
@@ -45,11 +44,11 @@ class NumpySequenceAnalyticsEngine(SequenceAnalyticsEngine):
         ])
 
     @staticmethod
-    def _empty_array() -> ndarray:
+    def _empty_array() -> np.ndarray:
         return np.array([], dtype=np.float64)
 
     @staticmethod
-    def _as_array(sequence: Sequence[Any]) -> ndarray:
+    def _as_array(sequence: Sequence[Any]) -> np.ndarray:
         if isinstance(sequence, np.ndarray):
             return sequence
         return np.asarray(sequence)

@@ -1,8 +1,8 @@
 from dataclasses import fields
 from typing import Sequence
 
-from domain.dto.validation_status import ValidationStatus
-from domain.model.candles.candle_series import CandleSeries
+from src.domain.dto.validation_status import ValidationStatus
+from src.domain.model.candles.candle_series import CandleSeries
 
 
 class CandleSeriesValidator:
