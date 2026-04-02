@@ -1,13 +1,14 @@
 from dataclasses import fields
 from typing import Sequence, Tuple
 
-from application.ports.inbound.analyse_series_usecase import AnalyseSeriesUseCase
-from application.ports.outbound.sequence_analytics_engine import SequenceAnalyticsEngine
-from domain.models.candles.candle import Candle
-from domain.models.candles.candle_series import CandleSeries
-from domain.models.analytics.analytics import Analytics
-from domain.services.candles.candle_series_validator import CandleSeriesValidator
-from domain.services.candles.candle_validator import CandleValidator
+from adapter.outbound.loguru.loguru_logger import LoguruLogger as Logger
+from application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
+from application.port.outbound.sequence_analytics_engine import SequenceAnalyticsEngine
+from domain.model.candles.candle import Candle
+from domain.model.candles.candle_series import CandleSeries
+from domain.model.analytics.analytics import Analytics
+from domain.service.candles.candle_series_validator import CandleSeriesValidator
+from domain.service.candles.candle_validator import CandleValidator
 
 
 class AnalyseCandles(AnalyseSeriesUseCase):
@@ -16,36 +17,38 @@ class AnalyseCandles(AnalyseSeriesUseCase):
         self._computation_engine = computation_engine
         self._candle_validator = CandleValidator()
         self._candle_sequence_validator = CandleSeriesValidator()
+        self._logger = Logger()
 
     def execute(self, candles: Sequence[Candle], params: dict) -> Tuple[Analytics, ...]:
-        sequence = CandleSeries()
+        candle_series = CandleSeries()
 
-        sequence.symbol = candles[0].symbol
-        sequence.source = candles[0].source
+        candle_series.symbol = candles[0].symbol
+        candle_series.source = candles[0].source
         for candle in candles:
-            if self._candle_validator.is_valid(candle):
+            if validat_candle := self._candle_validator.status(candle):
                 high = candle.high
                 low = candle.low
                 close = candle.close
-                sequence.time.append(candle.timestamp)
-                sequence.open.append(candle.open)
-                sequence.high.append(high)
-                sequence.low.append(low)
-                sequence.close.append(close)
-                sequence.volumes.append(candle.volume)
-                sequence.typical_price.append((high + low + close)/3)
-                sequence.spread.append(high - low)
+                candle_series.time.append(candle.timestamp)
+                candle_series.open.append(candle.open)
+                candle_series.high.append(high)
+                candle_series.low.append(low)
+                candle_series.close.append(close)
+                candle_series.volumes.append(candle.volume)
+                candle_series.typical_price.append((high + low + close)/3)
+                candle_series.spread.append(high - low)
+            else:
+                self._logger.error(validat_candle.exception.__str__())
 
-        if self._candle_sequence_validator.is_valid_for_analysis(sequence):
-
+        if validat_candle_sequence := self._candle_sequence_validator.is_valid_for_analysis(candle_series):
             window = params.get('window', 2)
-            symbol = sequence.symbol
-            source = sequence.source
-            time = self._computation_engine.to_array(sequence.time)
+            symbol = candle_series.symbol
+            source = candle_series.source
+            time = self._computation_engine.to_array(candle_series.time)
 
             result = []
             for field in fields(CandleSeries):
-                field_value = getattr(sequence, field.name)
+                field_value = getattr(candle_series, field.name)
                 if isinstance(field_value[0], float) and isinstance(field_value, Sequence):
                     result.append(
                         Analytics(
@@ -62,4 +65,5 @@ class AnalyseCandles(AnalyseSeriesUseCase):
                     )
             return tuple(result)
         else:
+            self._logger.error(validat_candle_sequence.exception.__str__())
             return (Analytics(),)
