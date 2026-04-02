@@ -1,14 +1,14 @@
 from dataclasses import fields
 from typing import Sequence, Tuple
 
-from application.ports.inbound.analyse_series_usecase import AnalyseSeriesUseCase
-from application.ports.outbound.sequence_analytics_engine import SequenceAnalyticsEngine
-from domain.models.analytics.analytics import Analytics
-from domain.models.quotes.quote import Quote
-from domain.models.quotes.quote_series import QuoteSeries
-from domain.services.quotes.quote_series_validator import QuoteSeriesValidator
-from domain.services.quotes.quote_validator import QuoteValidator
-
+from adapter.outbound.loguru.loguru_logger import LoguruLogger as Logger
+from application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
+from application.port.outbound.sequence_analytics_engine import SequenceAnalyticsEngine
+from domain.model.analytics.analytics import Analytics
+from domain.model.quotes.quote import Quote
+from domain.model.quotes.quote_series import QuoteSeries
+from domain.service.quotes.quote_series_validator import QuoteSeriesValidator
+from domain.service.quotes.quote_validator import QuoteValidator
 
 class AnalyseQuotes(AnalyseSeriesUseCase):
 
@@ -16,6 +16,7 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
         self._computation_engine = computation_engine
         self._quote_validator = QuoteValidator()
         self._quote_sequence_validator = QuoteSeriesValidator()
+        self._logger = Logger()
 
     def execute(self, quotes: Sequence[Quote], params: dict) -> Tuple[Analytics, ...]:
         sequence = QuoteSeries()
@@ -23,7 +24,7 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
         sequence.symbol = quotes[0].symbol
         sequence.source = quotes[0].source
         for quote in quotes:
-            if self._quote_validator.is_quote_valid(quote):
+            if validat_quote := self._quote_validator.is_quote_valid(quote):
                 ask = quote.ask
                 bid = quote.bid
                 last = quote.last
@@ -34,8 +35,10 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
                 sequence.volumes.append(quote.volume)
                 sequence.typical_price.append((ask + bid) / 2)
                 sequence.spread.append(ask - last)
+            else:
+                self._logger.error(validat_quote.exception.__str__())
 
-        if self._quote_sequence_validator.is_valid_for_analysis(sequence):
+        if validat_quote_sequence:= self._quote_sequence_validator.is_valid_for_analysis(sequence):
             window = params.get('window', 2)
             symbol = sequence.symbol
             source = sequence.source
@@ -60,5 +63,6 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
                     )
             return tuple(result)
         else:
+            self._logger.error(validat_quote_sequence.exception.__str__())
             return (Analytics(),)
 
