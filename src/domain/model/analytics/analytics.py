@@ -12,4 +12,5 @@ class Analytics:
     log_returns: Sequence[float] | None = None
     rolling_average: Sequence[float] | None = None
     rolling_standard_deviation: Sequence[float] | None = None
-    window: int | None = None
+    interpolation: Sequence[float] | None = None
+    integration: float | None = None

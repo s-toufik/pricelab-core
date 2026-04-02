@@ -1,11 +1,11 @@
 from enum import auto, Enum
 from typing import Sequence
 
+from src.domain.model.base.base_market_data import BaseMarketData
+from src.domain.model.candles.candle import Candle
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy
 
-from domain.model.base.base_market_data import BaseMarketData
-from domain.model.candles.candle import Candle
 
 class InvalidCandleReason(Enum):
     INVALID_TIMESTAMP = auto()
@@ -23,9 +23,9 @@ def base_market_data_strategy() -> SearchStrategy[BaseMarketData]:
         timestamp=st.datetimes().map(lambda dt: dt.isoformat()),
     )
 
+
 @st.composite
 def candle_strategy(draw) -> Candle:
-
     base_price = st.floats(min_value=0.01, max_value=1e6, allow_nan=False, allow_infinity=False)
     spread = st.floats(min_value=0.0, max_value=1000, allow_nan=False, allow_infinity=False)
     base = draw(base_market_data_strategy())
@@ -50,6 +50,7 @@ def candle_strategy(draw) -> Candle:
         close=close,
         volume=volume,
     )
+
 
 @st.composite
 def invalid_candle_strategy(draw, reason: InvalidCandleReason | None = None) -> Candle | None:
@@ -108,6 +109,7 @@ def invalid_candle_strategy(draw, reason: InvalidCandleReason | None = None) -> 
             open=price, high=high, low=low, close=close, volume=0.0,
         )
 
+
 def candles_strategy(min_size=5, max_size=50) -> SearchStrategy[Sequence[Candle]]:
     return st.lists(
         candle_strategy(),
@@ -116,7 +118,9 @@ def candles_strategy(min_size=5, max_size=50) -> SearchStrategy[Sequence[Candle]
         unique=True
     )
 
-def invalid_candles_strategy(min_size=1, max_size=1, reason: InvalidCandleReason | None = None) -> SearchStrategy[Sequence[Candle]]:
+
+def invalid_candles_strategy(min_size=1, max_size=1, reason: InvalidCandleReason | None = None) -> SearchStrategy[
+    Sequence[Candle]]:
     return st.lists(
         invalid_candle_strategy(reason=reason),
         min_size=min_size,

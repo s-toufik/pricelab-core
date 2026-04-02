@@ -1,10 +1,12 @@
-import msgpack
-from typing import TypeVar, Type
 from dataclasses import asdict
+from typing import TypeVar, Type
 
-from application.port.outbound.serializer import Serializer
+import msgpack
+from src.application.port.outbound.serializer.serializer import Serializer
 
 T = TypeVar("T")
+
+
 class BinarySerializer(Serializer):
 
     def serialize(inputs: T) -> bytes:

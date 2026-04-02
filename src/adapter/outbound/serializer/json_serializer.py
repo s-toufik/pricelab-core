@@ -2,13 +2,15 @@ import json
 from dataclasses import asdict
 from typing import TypeVar, Type
 
-from application.port.outbound.serializer import Serializer
+from src.application.port.outbound.serializer.serializer import Serializer
 
 T = TypeVar("T")
+
+
 class JSONSerializer(Serializer):
 
     def serialize(inputs: T) -> str:
         return json.dumps(asdict(inputs))
 
-    def deserialize(inputs: str, cls : Type[T]) -> T:
+    def deserialize(inputs: str, cls: Type[T]) -> T:
         return cls(**json.loads(inputs))

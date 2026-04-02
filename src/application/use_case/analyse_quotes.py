@@ -1,19 +1,20 @@
 from dataclasses import fields
 from typing import Sequence, Tuple
 
-from adapter.outbound.loguru.loguru_logger import LoguruLogger as Logger
-from application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
-from application.port.outbound.sequence_analytics_engine import SequenceAnalyticsEngine
-from domain.model.analytics.analytics import Analytics
-from domain.model.quotes.quote import Quote
-from domain.model.quotes.quote_series import QuoteSeries
-from domain.service.quotes.quote_series_validator import QuoteSeriesValidator
-from domain.service.quotes.quote_validator import QuoteValidator
+from src.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
+from src.adapter.outbound.logger.loguru_logger import LoguruLogger as Logger
+from src.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
+from src.domain.model.analytics.analytics import Analytics
+from src.domain.model.quotes.quote import Quote
+from src.domain.model.quotes.quote_series import QuoteSeries
+from src.domain.service.quotes.quote_series_validator import QuoteSeriesValidator
+from src.domain.service.quotes.quote_validator import QuoteValidator
+
 
 class AnalyseQuotes(AnalyseSeriesUseCase):
 
-    def __init__(self, computation_engine: SequenceAnalyticsEngine) -> None:
-        self._computation_engine = computation_engine
+    def __init__(self) -> None:
+        self._computation_engine = StartComputeEngine().engine
         self._quote_validator = QuoteValidator()
         self._quote_sequence_validator = QuoteSeriesValidator()
         self._logger = Logger()
@@ -38,11 +39,13 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
             else:
                 self._logger.error(validat_quote.exception.__str__())
 
-        if validat_quote_sequence:= self._quote_sequence_validator.is_valid_for_analysis(sequence):
+        if validat_quote_sequence := self._quote_sequence_validator.is_valid_for_analysis(sequence):
             window = params.get('window', 2)
+            kind = params.get('kind', 'linear')
+            dx = params.get('dx', 0.2)
             symbol = sequence.symbol
             source = sequence.source
-            time = self._computation_engine.to_array(sequence.time)
+            time = sequence.time
 
             result = []
             for field in fields(QuoteSeries):
@@ -54,15 +57,15 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
                             source=source,
                             name=field.name,
                             time=time,
-                            value=self._computation_engine.to_array(field_value),
-                            log_returns=self._computation_engine.log_returns(field_value),
-                            rolling_average=self._computation_engine.rolling_average(field_value, window = window),
-                            rolling_standard_deviation=self._computation_engine.rolling_standard_deviation(field_value, window = window),
-                            window=window
+                            value=list(self._computation_engine.to_array(field_value)),
+                            log_returns=list(self._computation_engine.log_returns(field_value)),
+                            rolling_average=list(self._computation_engine.rolling_average(field_value, window=window)),
+                            rolling_standard_deviation=list(self._computation_engine.rolling_standard_deviation(field_value,window=window)),
+                            interpolation=list(self._computation_engine.interpolate(field_value, kind=kind)),
+                            integration=self._computation_engine.integrate(field_value, dx=dx)
                         )
                     )
             return tuple(result)
         else:
             self._logger.error(validat_quote_sequence.exception.__str__())
             return (Analytics(),)
-

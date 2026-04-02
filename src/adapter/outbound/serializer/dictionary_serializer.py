@@ -1,9 +1,11 @@
 from dataclasses import asdict
 from typing import TypeVar, Type
 
-from application.port.outbound.serializer import Serializer
+from src.application.port.outbound.serializer.serializer import Serializer
 
 T = TypeVar("T")
+
+
 class DictionarySerializer(Serializer):
 
     def serialize(inputs: T) -> dict:

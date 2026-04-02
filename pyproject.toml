@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pricelab-core"
 version = "0.1.0.dev1"
 authors = [
-    { name="Toufik Saouchi", email="toufik.saouchi@gmail.com" },
+    { name = "Toufik Saouchi", email = "toufik.saouchi@gmail.com" },
 ]
 description = "market price analysis system"
 readme = "README.md"
@@ -28,6 +28,8 @@ dependencies = [
     "openai",
     "msgpack>=1.1.2",
     "loguru>=0.7.3",
+    "scipy>=1.17.1",
+    "scipy-stubs>=1.17.1.3",
 ]
 
 [dependency-groups]
