@@ -1,41 +1,45 @@
+from typing import Sequence
+
 import pytest
+from hypothesis import given
 
 from domain.model.candles.candle import Candle
 from tests.domain.models.candles_generator import candles_strategy
 
 class TestCandleCreation:
 
-    @pytest.fixture
-    def candle_init(self) -> Candle:
-        candles = candles_strategy(min_size=1, max_size=1).example()
-        return candles[0]
+    @given(candles = candles_strategy(min_size=1, max_size=1))
+    def test_candle_field_type(self, candles: Sequence[Candle]) -> None:
+        for candle in candles:
+            assert isinstance(candle.source, str)
+            assert isinstance(candle.symbol, str)
+            assert isinstance(candle.timestamp, str)
+            assert isinstance(candle.open, float)
+            assert isinstance(candle.high, float)
+            assert isinstance(candle.low, float)
+            assert isinstance(candle.close, float)
+            assert isinstance(candle.volume, float)
 
-    def test_candle_field_type(self, candle_init: Candle) -> None:
-        assert isinstance(candle_init.source, str)
-        assert isinstance(candle_init.symbol, str)
-        assert isinstance(candle_init.timestamp, str)
-        assert isinstance(candle_init.open, float)
-        assert isinstance(candle_init.high, float)
-        assert isinstance(candle_init.low, float)
-        assert isinstance(candle_init.close, float)
-        assert isinstance(candle_init.volume, float)
-
-    def test_candle_immutability(self, candle_init) -> None:
+    @given(candles = candles_strategy(min_size=1, max_size=1))
+    def test_candle_immutability(self, candles) -> None:
         with pytest.raises(AttributeError):
-            candle_init.open = 0.0
+            for candle in candles:
+                candle.open = 0.0
 
-    def test_candle_equality(self, candle_init) -> None:
+    @given(candles = candles_strategy(min_size=1, max_size=1))
+    def test_candle_equality(self, candles: Sequence[Candle]) -> None:
+        candle = candles[0]
         same_candle = Candle(
-            source = candle_init.source,
-            symbol = candle_init.symbol,
-            timestamp = candle_init.timestamp,
-            open = candle_init.open,
-            high = candle_init.high,
-            low = candle_init.low,
-            close = candle_init.close,
-            volume = candle_init.volume
+            source = candle.source,
+            symbol = candle.symbol,
+            timestamp = candle.timestamp,
+            open = candle.open,
+            high = candle.high,
+            low = candle.low,
+            close = candle.close,
+            volume = candle.volume
         )
-        assert candle_init == same_candle
+        assert candle == same_candle
 
     def test_candle(self) -> None:
         candle = Candle(
