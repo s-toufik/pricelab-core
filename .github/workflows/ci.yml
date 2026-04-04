@@ -29,7 +29,7 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run pytest --maxfail=1 --disable-warnings --junitxml=test-reports/report.xml
+          uv run pytest --maxfail=1 --disable-warnings
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

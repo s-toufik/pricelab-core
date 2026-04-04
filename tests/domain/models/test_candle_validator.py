@@ -14,7 +14,7 @@ class TestCandleValidator():
         for candle in candles:
             assert CandleValidator().status(candle)
 
-    @given(candles=invalid_candles_strategy(min_size=1, max_size=10, reason=InvalidCandleReason.INVALID_TIMESTAMP))
+    @given(candles=invalid_candles_strategy(min_size=1, max_size=10, reason=InvalidCandleReason.NEGATIVE_VOLUME))
     def test_invalid_candles_validator(self, candles: Sequence[Candle]) -> None:
         for invalid_candle in candles:
             assert CandleValidator().status(invalid_candle).is_valid is False
