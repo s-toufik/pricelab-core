@@ -93,13 +93,14 @@ jobs:
 
       - name: Publish package
         env:
+          UV_TEST_PYPI_URL: ${{ vars.TEST_PYPI_URL }}
           TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
           RELEASE_PYPI_TOKEN: ${{ secrets.RELEASE_PYPI_TOKEN }}
         run: |
           if [ "$GITHUB_REF_NAME" = "develop" ]; then
             echo "Publishing to TestPyPI..."
             export UV_PUBLISH_TOKEN="$TEST_PYPI_TOKEN"
-            uv publish --publish-url https://test.pypi.org/legacy/
+            uv publish --publish-url "$UV_TEST_PYPI_URL"
           else
             echo "Publishing to PyPI..."
             export UV_PUBLISH_TOKEN="$RELEASE_PYPI_TOKEN" 
