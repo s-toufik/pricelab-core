@@ -98,8 +98,10 @@ jobs:
         run: |
           if [ "$GITHUB_REF_NAME" = "develop" ]; then
             echo "Publishing to TestPyPI..."
-            UV_PUBLISH_TOKEN="$TEST_PYPI_TOKEN" uv publish --publish-url https://test.pypi.org/legacy/
+            export UV_PUBLISH_TOKEN="$TEST_PYPI_TOKEN"
+            uv publish --publish-url https://test.pypi.org/legacy/
           else
             echo "Publishing to PyPI..."
-            UV_PUBLISH_TOKEN="$RELEASE_PYPI_TOKEN" uv publish
+            export UV_PUBLISH_TOKEN="$RELEASE_PYPI_TOKEN" 
+            uv publish
           fi
