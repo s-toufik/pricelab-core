@@ -1,8 +1,8 @@
 from dataclasses import fields
 from typing import Sequence
 
-from src.pricelab_core.domain.dto.validation_status import ValidationStatus
-from src.pricelab_core.domain.model.candles.candle_series import CandleSeries
+from pricelab_core.domain.dto.validation_status import ValidationStatus
+from pricelab_core.domain.model.candles.candle_series import CandleSeries
 
 
 class CandleSeriesValidator:

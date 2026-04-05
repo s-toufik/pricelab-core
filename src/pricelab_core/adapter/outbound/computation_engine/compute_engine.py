@@ -1,6 +1,6 @@
 from typing import Any, Sequence
 
-from src.pricelab_core.adapter.outbound.logger.loguru_logger import LoguruLogger
+from pricelab_core.adapter.outbound.logger.loguru_logger import LoguruLogger
 
 
 class ComputeEngine:

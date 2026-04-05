@@ -1,7 +1,7 @@
 import datetime
 
-from src.pricelab_core.domain.dto.validation_status import ValidationStatus
-from src.pricelab_core.domain.model.quotes.quote import Quote
+from pricelab_core.domain.dto.validation_status import ValidationStatus
+from pricelab_core.domain.model.quotes.quote import Quote
 
 
 class QuoteValidator:

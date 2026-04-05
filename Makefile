@@ -1,6 +1,9 @@
 venv:
 	uv venv
 
+clear_env_cache:
+	uv cache clear
+
 install:
 	uv sync
 
