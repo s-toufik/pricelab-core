@@ -1,9 +1,10 @@
 from typing import Sequence
 
-from src.domain.model.candles.candle import Candle
-from src.domain.service.candles.candle_validator import CandleValidator
+
 from hypothesis import given
 
+from pricelab_core.domain.model.candles.candle import Candle
+from pricelab_core.domain.service.candles.candle_validator import CandleValidator
 from tests.domain.models.candles_generator import candles_strategy, invalid_candles_strategy, InvalidCandleReason
 
 
