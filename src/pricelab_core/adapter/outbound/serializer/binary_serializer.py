@@ -2,7 +2,7 @@ from dataclasses import asdict
 from typing import TypeVar, Type
 
 import msgpack
-from src.pricelab_core.application.port.outbound.serializer.serializer import Serializer
+from pricelab_core.application.port.outbound.serializer.serializer import Serializer
 
 T = TypeVar("T")
 

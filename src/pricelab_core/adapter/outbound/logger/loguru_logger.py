@@ -2,7 +2,7 @@ import threading
 
 from loguru import logger as loguru_logger
 
-from src.pricelab_core.application.port.outbound.logger.logger_interface import LoggerInterface
+from pricelab_core.application.port.outbound.logger.logger_interface import LoggerInterface
 
 
 class LoguruLogger(LoggerInterface):
