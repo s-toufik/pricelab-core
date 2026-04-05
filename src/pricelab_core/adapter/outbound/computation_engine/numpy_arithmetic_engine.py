@@ -3,7 +3,7 @@ from typing import Sequence, TypeVar, Any
 
 import numpy as np
 
-from src.pricelab_core.application.port.outbound.computation_engine.arithmetic_computation_engine import ArithmeticEngine
+from pricelab_core.application.port.outbound.computation_engine.arithmetic_computation_engine import ArithmeticEngine
 
 Numeric = TypeVar("Numeric", bound=numbers.Real)
 

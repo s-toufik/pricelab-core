@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Sequence, TypeVar
 
-from src.pricelab_core.domain.model.analytics.analytics import Analytics
-from src.pricelab_core.domain.model.candles.candle import Candle
-from src.pricelab_core.domain.model.quotes.quote import Quote
+from pricelab_core.domain.model.analytics.analytics import Analytics
+from pricelab_core.domain.model.candles.candle import Candle
+from pricelab_core.domain.model.quotes.quote import Quote
 
 T = TypeVar("T", Sequence[Candle], Sequence[Quote])
 

@@ -2,7 +2,7 @@ import json
 from dataclasses import asdict
 from typing import TypeVar, Type
 
-from src.pricelab_core.application.port.outbound.serializer.serializer import Serializer
+from pricelab_core.application.port.outbound.serializer.serializer import Serializer
 
 T = TypeVar("T")
 

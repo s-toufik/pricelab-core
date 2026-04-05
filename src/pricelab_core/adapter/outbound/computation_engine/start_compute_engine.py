@@ -1,8 +1,8 @@
 import threading
 
-from src.pricelab_core.adapter.outbound.computation_engine.compute_engine import ComputeEngine
-from src.pricelab_core.adapter.outbound.computation_engine.numpy_arithmetic_engine import NumPyArithmeticEngine
-from src.pricelab_core.adapter.outbound.computation_engine.scipy_scientific_engine import ScipyScientificEngine
+from pricelab_core.adapter.outbound.computation_engine.compute_engine import ComputeEngine
+from pricelab_core.adapter.outbound.computation_engine.numpy_arithmetic_engine import NumPyArithmeticEngine
+from pricelab_core.adapter.outbound.computation_engine.scipy_scientific_engine import ScipyScientificEngine
 
 
 class StartComputeEngine:

@@ -1,14 +1,14 @@
 from dataclasses import fields
 from typing import Sequence, Tuple
 
-from src.pricelab_core.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
-from src.pricelab_core.adapter.outbound.logger.loguru_logger import LoguruLogger as Logger
-from src.pricelab_core.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
-from src.pricelab_core.domain.model.analytics.analytics import Analytics
-from src.pricelab_core.domain.model.quotes.quote import Quote
-from src.pricelab_core.domain.model.quotes.quote_series import QuoteSeries
-from src.pricelab_core.domain.service.quotes.quote_series_validator import QuoteSeriesValidator
-from src.pricelab_core.domain.service.quotes.quote_validator import QuoteValidator
+from pricelab_core.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
+from pricelab_core.adapter.outbound.logger.loguru_logger import LoguruLogger as Logger
+from pricelab_core.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
+from pricelab_core.domain.model.analytics.analytics import Analytics
+from pricelab_core.domain.model.quotes.quote import Quote
+from pricelab_core.domain.model.quotes.quote_series import QuoteSeries
+from pricelab_core.domain.service.quotes.quote_series_validator import QuoteSeriesValidator
+from pricelab_core.domain.service.quotes.quote_validator import QuoteValidator
 
 
 class AnalyseQuotes(AnalyseSeriesUseCase):

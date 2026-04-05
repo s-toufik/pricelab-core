@@ -4,7 +4,7 @@ from typing import Sequence, TypeVar, Any, Literal, Union
 import numpy as np
 from scipy import interpolate, integrate
 
-from src.pricelab_core.application.port.outbound.computation_engine.scientifc_computation_engine import ScientificEngine
+from pricelab_core.application.port.outbound.computation_engine.scientifc_computation_engine import ScientificEngine
 
 Numeric = TypeVar("Numeric", bound=numbers.Real)
 Kind = Union[
