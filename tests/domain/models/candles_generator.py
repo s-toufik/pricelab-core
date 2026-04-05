@@ -1,10 +1,12 @@
 from enum import auto, Enum
 from typing import Sequence
 
-from src.domain.model.base.base_market_data import BaseMarketData
-from src.domain.model.candles.candle import Candle
+
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy
+
+from pricelab_core.domain.model.base.base_market_data import BaseMarketData
+from pricelab_core.domain.model.candles.candle import Candle
 
 
 class InvalidCandleReason(Enum):

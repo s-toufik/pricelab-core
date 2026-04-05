@@ -1,9 +1,10 @@
 from typing import Sequence
 
 import pytest
-from src.domain.model.candles.candle import Candle
+
 from hypothesis import given
 
+from pricelab_core.domain.model.candles.candle import Candle
 from tests.domain.models.candles_generator import candles_strategy
 
 
