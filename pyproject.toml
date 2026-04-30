@@ -53,4 +53,4 @@ strict = true
 where = ["src"]
 
 [project.urls]
-Homepage = "https://bitbucket.org/stoufik/shared-core"
+Homepage = "https://github.com/s-toufik/pricelab-core"
