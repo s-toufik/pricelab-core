@@ -2,7 +2,7 @@ from dataclasses import fields
 from typing import Sequence, Tuple
 
 from pricelab_core.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
-from pricelab_core.adapter.outbound.logger.loguru_logger import LoguruLogger as Logger
+from pricelab_core.adapter.outbound.logger.logger_instance import logger
 from pricelab_core.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
 from pricelab_core.domain.model.analytics.analytics import Analytics
 from pricelab_core.domain.model.candles.candle import Candle
@@ -17,7 +17,7 @@ class AnalyseCandles(AnalyseSeriesUseCase):
         self._computation_engine = StartComputeEngine().engine
         self._candle_validator = CandleValidator()
         self._candle_sequence_validator = CandleSeriesValidator()
-        self._logger = Logger()
+        self._logger = logger
 
     def execute(self, candles: Sequence[Candle], params: dict) -> Tuple[Analytics, ...]:
         candle_series = CandleSeries()

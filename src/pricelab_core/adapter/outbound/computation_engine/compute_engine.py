@@ -1,12 +1,12 @@
 from typing import Any, Sequence
 
-from pricelab_core.adapter.outbound.logger.loguru_logger import LoguruLogger
+from pricelab_core.adapter.outbound.logger.logger_instance import logger
 
 
 class ComputeEngine:
     def __init__(self, engines: Sequence[Any]):
         self._engines = engines
-        self._logger = LoguruLogger()
+        self._logger = logger
 
     def __getattr__(self, name: str) -> Any:
         for engine in self._engines:
