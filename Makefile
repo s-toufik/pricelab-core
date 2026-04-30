@@ -10,9 +10,6 @@ install:
 install_dev:
 	uv sync --group dev
 
-run:
-	uv run uvicorn price.main:app --reload
-
 test:
 	uv run pytest
 
