@@ -2,7 +2,7 @@ from dataclasses import fields
 from typing import Sequence, Tuple
 
 from pricelab_core.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
-from pricelab_core.adapter.outbound.logger.loguru_logger import LoguruLogger as Logger
+from pricelab_core.adapter.outbound.logger.logger_instance import logger
 from pricelab_core.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
 from pricelab_core.domain.model.analytics.analytics import Analytics
 from pricelab_core.domain.model.quotes.quote import Quote
@@ -17,7 +17,7 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
         self._computation_engine = StartComputeEngine().engine
         self._quote_validator = QuoteValidator()
         self._quote_sequence_validator = QuoteSeriesValidator()
-        self._logger = Logger()
+        self._logger = logger
 
     def execute(self, quotes: Sequence[Quote], params: dict) -> Tuple[Analytics, ...]:
         sequence = QuoteSeries()
