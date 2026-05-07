@@ -5,7 +5,7 @@ from dataclasses import dataclass
 class ValidationStatus:
     is_valid: bool
     reason: str | None = None
-    exception: Exception | None = None
+    exception: type[Exception] | Exception | None = None
 
     def __bool__(self) -> bool:
         return self.is_valid

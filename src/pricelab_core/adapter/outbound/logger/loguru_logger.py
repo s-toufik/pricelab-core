@@ -2,10 +2,8 @@ import threading
 
 from loguru import logger as loguru_logger
 
-from pricelab_core.application.port.outbound.logger.logger_interface import LoggerInterface
 
-
-class LoguruLogger(LoggerInterface):
+class LoguruLogger:
     _instance = None
     _lock = threading.Lock()
 

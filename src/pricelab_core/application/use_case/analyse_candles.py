@@ -1,9 +1,9 @@
 from dataclasses import fields
 from typing import Sequence, Tuple
 
-from pricelab_core.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
-from pricelab_core.adapter.outbound.logger.logger_instance import logger
-from pricelab_core.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
+from pricelab_core.application.port.outbound.computation_engine.engine import Engine
+from pricelab_core.application.port.outbound.logger.logger import Logger
+from pricelab_core.domain.base.const_typing import Kind
 from pricelab_core.domain.model.analytics.analytics import Analytics
 from pricelab_core.domain.model.candles.candle import Candle
 from pricelab_core.domain.model.candles.candle_series import CandleSeries
@@ -11,20 +11,19 @@ from pricelab_core.domain.service.candles.candle_series_validator import CandleS
 from pricelab_core.domain.service.candles.candle_validator import CandleValidator
 
 
-class AnalyseCandles(AnalyseSeriesUseCase):
-
-    def __init__(self) -> None:
-        self._computation_engine = StartComputeEngine().engine
+class AnalyseCandlesUseCase:
+    def __init__(self, computation_engine: Engine, logger: Logger) -> None:
+        self._computation_engine = computation_engine
+        self._logger = logger
         self._candle_validator = CandleValidator()
         self._candle_sequence_validator = CandleSeriesValidator()
-        self._logger = logger
 
-    def execute(self, candles: Sequence[Candle], params: dict) -> Tuple[Analytics, ...]:
+    def execute(self, sequence: Sequence[Candle], params: dict) -> Tuple[Analytics, ...]:
         candle_series = CandleSeries()
 
-        candle_series.symbol = candles[0].symbol
-        candle_series.source = candles[0].source
-        for candle in candles:
+        candle_series.symbol = sequence[0].symbol
+        candle_series.source = sequence[0].source
+        for candle in sequence:
             if validat_candle := self._candle_validator.status(candle):
                 high = candle.high
                 low = candle.low
@@ -40,10 +39,12 @@ class AnalyseCandles(AnalyseSeriesUseCase):
             else:
                 self._logger.error(validat_candle.exception.__str__())
 
-        if validat_candle_sequence := self._candle_sequence_validator.is_valid_for_analysis(candle_series):
-            window = params.get('window', 2)
-            kind = params.get('kind', 'linear')
-            dx = params.get('dx', 0.2)
+        if validat_candle_sequence := self._candle_sequence_validator.is_valid_for_analysis(
+            candle_series
+        ):
+            window = params.get("window", 2)
+            kind: Kind = params.get("kind", "linear")   # type: ignore
+            dx = params.get("dx", 0.2)
             symbol = candle_series.symbol
             source = candle_series.source
             time = candle_series.time
@@ -59,11 +60,27 @@ class AnalyseCandles(AnalyseSeriesUseCase):
                             name=field.name,
                             time=time,
                             value=field_value,
-                            log_returns=list(self._computation_engine.log_returns(field_value)),
-                            rolling_average=list(self._computation_engine.rolling_average(field_value, window=window)),
-                            rolling_standard_deviation=list(self._computation_engine.rolling_standard_deviation(field_value,window=window)),
-                            interpolation=list(self._computation_engine.interpolate(field_value, kind=kind)),
-                            integration=self._computation_engine.integrate(field_value, dx=dx)
+                            log_returns=list(
+                                self._computation_engine.arithmetic.log_returns(field_value)
+                            ),
+                            rolling_average=list(
+                                self._computation_engine.arithmetic.rolling_average(
+                                    field_value, window=window
+                                )
+                            ),
+                            rolling_standard_deviation=list(
+                                self._computation_engine.arithmetic.rolling_standard_deviation(
+                                    field_value, window=window
+                                )
+                            ),
+                            interpolation=list(
+                                self._computation_engine.calculus.interpolate(
+                                    field_value, kind=kind
+                                )
+                            ),
+                            integration=self._computation_engine.calculus.integrate(
+                                field_value, dx=dx
+                            ),
                         )
                     )
             return tuple(result)

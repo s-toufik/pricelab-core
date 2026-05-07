@@ -9,7 +9,6 @@ from tests.domain.models.candles_generator import candles_strategy
 
 
 class TestCandleCreation:
-
     @given(candles=candles_strategy(min_size=1, max_size=1))
     def test_candle_field_type(self, candles: Sequence[Candle]) -> None:
         for candle in candles:
@@ -39,7 +38,7 @@ class TestCandleCreation:
             high=candle.high,
             low=candle.low,
             close=candle.close,
-            volume=candle.volume
+            volume=candle.volume,
         )
         assert candle == same_candle
 
@@ -52,7 +51,7 @@ class TestCandleCreation:
             high=50500.0,
             low=49500.0,
             close=50200.0,
-            volume=1000.0
+            volume=1000.0,
         )
 
         assert candle.source == "binance"
