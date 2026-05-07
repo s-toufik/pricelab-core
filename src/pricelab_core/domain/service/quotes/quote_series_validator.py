@@ -1,7 +1,7 @@
 from dataclasses import fields
 from typing import Sequence
 
-from pricelab_core.domain.dto.validation_status import ValidationStatus
+from pricelab_core.domain.base.validation_status import ValidationStatus
 from pricelab_core.domain.model.quotes.quote_series import QuoteSeries
 
 
@@ -19,7 +19,7 @@ class QuoteSeriesValidator:
             field.name: len(getattr(sequence, field.name))
             for field in fields(QuoteSeries)
             if isinstance(getattr(sequence, field.name), Sequence)
-               and not isinstance(getattr(sequence, field.name), str)
+            and not isinstance(getattr(sequence, field.name), str)
         }
 
         values = lengths.values()

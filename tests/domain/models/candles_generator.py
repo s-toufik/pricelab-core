@@ -67,65 +67,94 @@ def invalid_candle_strategy(draw, reason: InvalidCandleReason | None = None) -> 
         reason = draw(st.sampled_from(list(InvalidCandleReason)))
 
     if reason == InvalidCandleReason.INVALID_TIMESTAMP:
-        timestamp = draw(st.one_of(
-            st.just("not-a-date"),
-            st.just(""),
-            st.just("99999-99-99"),
-            st.integers().map(str),
-        ))
+        timestamp = draw(
+            st.one_of(
+                st.just("not-a-date"),
+                st.just(""),
+                st.just("99999-99-99"),
+                st.integers().map(str),
+            )
+        )
         return Candle(
-            source=base.source, symbol=base.symbol, timestamp=timestamp,
-            open=price, high=high, low=low, close=price, volume=0.0,
+            source=base.source,
+            symbol=base.symbol,
+            timestamp=timestamp,
+            open=price,
+            high=high,
+            low=low,
+            close=price,
+            volume=0.0,
         )
 
     if reason == InvalidCandleReason.NEGATIVE_VOLUME:
         volume = draw(st.floats(max_value=-0.01, allow_nan=False, allow_infinity=False))
         return Candle(
-            source=base.source, symbol=base.symbol, timestamp=base.timestamp,
-            open=price, high=high, low=low, close=price, volume=volume,
+            source=base.source,
+            symbol=base.symbol,
+            timestamp=base.timestamp,
+            open=price,
+            high=high,
+            low=low,
+            close=price,
+            volume=volume,
         )
 
     if reason == InvalidCandleReason.LOW_GREATER_THAN_HIGH:
         return Candle(
-            source=base.source, symbol=base.symbol, timestamp=base.timestamp,
-            open=price, high=low, low=high, close=price, volume=0.0,
+            source=base.source,
+            symbol=base.symbol,
+            timestamp=base.timestamp,
+            open=price,
+            high=low,
+            low=high,
+            close=price,
+            volume=0.0,
         )
 
     if reason == InvalidCandleReason.OPEN_OUTSIDE_RANGE:
-        open_ = draw(st.one_of(
-            st.floats(max_value=low - 0.01, allow_nan=False, allow_infinity=False),
-            st.floats(min_value=high + 0.01, allow_nan=False, allow_infinity=False),
-        ))
+        open_ = draw(
+            st.one_of(
+                st.floats(max_value=low - 0.01, allow_nan=False, allow_infinity=False),
+                st.floats(min_value=high + 0.01, allow_nan=False, allow_infinity=False),
+            )
+        )
         return Candle(
-            source=base.source, symbol=base.symbol, timestamp=base.timestamp,
-            open=open_, high=high, low=low, close=price, volume=0.0,
+            source=base.source,
+            symbol=base.symbol,
+            timestamp=base.timestamp,
+            open=open_,
+            high=high,
+            low=low,
+            close=price,
+            volume=0.0,
         )
 
     if reason == InvalidCandleReason.CLOSE_OUTSIDE_RANGE:
-        close = draw(st.one_of(
-            st.floats(max_value=low - 0.01, allow_nan=False, allow_infinity=False),
-            st.floats(min_value=high + 0.01, allow_nan=False, allow_infinity=False),
-        ))
+        close = draw(
+            st.one_of(
+                st.floats(max_value=low - 0.01, allow_nan=False, allow_infinity=False),
+                st.floats(min_value=high + 0.01, allow_nan=False, allow_infinity=False),
+            )
+        )
         return Candle(
-            source=base.source, symbol=base.symbol, timestamp=base.timestamp,
-            open=price, high=high, low=low, close=close, volume=0.0,
+            source=base.source,
+            symbol=base.symbol,
+            timestamp=base.timestamp,
+            open=price,
+            high=high,
+            low=low,
+            close=close,
+            volume=0.0,
         )
 
 
 def candles_strategy(min_size=5, max_size=50) -> SearchStrategy[Sequence[Candle]]:
-    return st.lists(
-        candle_strategy(),
-        min_size=min_size,
-        max_size=max_size,
-        unique=True
-    )
+    return st.lists(candle_strategy(), min_size=min_size, max_size=max_size, unique=True)
 
 
-def invalid_candles_strategy(min_size=1, max_size=1, reason: InvalidCandleReason | None = None) -> SearchStrategy[
-    Sequence[Candle]]:
+def invalid_candles_strategy(
+    min_size=1, max_size=1, reason: InvalidCandleReason | None = None
+) -> SearchStrategy[Sequence[Candle]]:
     return st.lists(
-        invalid_candle_strategy(reason=reason),
-        min_size=min_size,
-        max_size=max_size,
-        unique=True
+        invalid_candle_strategy(reason=reason), min_size=min_size, max_size=max_size, unique=True
     )

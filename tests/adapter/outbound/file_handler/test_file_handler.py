@@ -2,8 +2,8 @@ import pytest
 
 from pricelab_core.adapter.outbound.file_handler.handler import Handler
 
-class TestFileHandler:
 
+class TestFileHandler:
     @pytest.fixture
     def provider(self):
         return Handler
@@ -36,9 +36,9 @@ class TestFileHandler:
     def test_extension_not_found(self, tmp_path, provider):
         file = tmp_path / "test.foo"
         file.write_text("key: value")
-        
-        with pytest.raises(NotImplementedError):
-                provider(str(file)).read()
 
         with pytest.raises(NotImplementedError):
-                provider(str(file)).write({"key": "value"})
+            provider(str(file)).read()
+
+        with pytest.raises(NotImplementedError):
+            provider(str(file)).write({"key": "value"})

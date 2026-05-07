@@ -1,15 +1,11 @@
-import numbers
-from typing import Sequence, TypeVar, Any
+from typing import Sequence, Any
 
 import numpy as np
 
-from pricelab_core.application.port.outbound.computation_engine.arithmetic_computation_engine import ArithmeticEngine
-
-Numeric = TypeVar("Numeric", bound=numbers.Real)
+from pricelab_core.domain.base.const_typing import Numeric
 
 
-class NumPyArithmeticEngine(ArithmeticEngine):
-
+class NumPyArithmeticOperation:
     def to_array(self, sequence: Sequence[Any]) -> np.ndarray:
         return self._as_array(sequence)
 
@@ -29,19 +25,18 @@ class NumPyArithmeticEngine(ArithmeticEngine):
             return self._empty_array()
 
         array = self._as_array(sequence)
+        kernel = self._as_array((np.ones(window) / window).astype(np.float64))
+        return np.convolve(array, kernel)
 
-        return np.convolve(array, np.ones(window) / window, mode="valid")
-
-    def rolling_standard_deviation(self, sequence: Sequence[Numeric], window: int = 5) -> np.ndarray:
+    def rolling_standard_deviation(
+        self, sequence: Sequence[Numeric], window: int = 5
+    ) -> np.ndarray:
         if len(sequence) < window:
             return self._empty_array()
 
         array = self._as_array(sequence)
 
-        return np.array([
-            np.std(array[i:i + window])
-            for i in range(len(array) - window + 1)
-        ])
+        return np.array([np.std(array[i : i + window]) for i in range(len(array) - window + 1)])
 
     @staticmethod
     def _empty_array() -> np.ndarray:
@@ -51,4 +46,4 @@ class NumPyArithmeticEngine(ArithmeticEngine):
     def _as_array(sequence: Sequence[Any]) -> np.ndarray:
         if isinstance(sequence, np.ndarray):
             return sequence
-        return np.asarray(sequence)
+        return np.asarray(sequence, dtype=np.float64)

@@ -1,17 +1,20 @@
-from typing import Any, Sequence
-
-from pricelab_core.adapter.outbound.logger.logger_instance import logger
+from pricelab_core.application.port.outbound.computation_engine.arithmetic_operation import (
+    ArithmeticOperation,
+)
+from pricelab_core.application.port.outbound.computation_engine.calculus_operation import (
+    CalculusOperation,
+)
 
 
 class ComputeEngine:
-    def __init__(self, engines: Sequence[Any]):
-        self._engines = engines
-        self._logger = logger
+    def __init__(self, arithmetic: ArithmeticOperation, calculus: CalculusOperation):
+        self._arithmetic = arithmetic
+        self._calculus = calculus
 
-    def __getattr__(self, name: str) -> Any:
-        for engine in self._engines:
-            if hasattr(engine, name):
-                return getattr(engine, name)
+    @property
+    def arithmetic(self) -> ArithmeticOperation:
+        return self._arithmetic
 
-        self._logger.exception(f"{name} not found in {self._engines}")
-        raise AttributeError
+    @property
+    def calculus(self) -> CalculusOperation:
+        return self._calculus

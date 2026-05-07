@@ -2,13 +2,11 @@ from dataclasses import asdict
 from typing import TypeVar, Type
 
 import msgpack
-from pricelab_core.application.port.outbound.serializer.serializer import Serializer
 
 T = TypeVar("T")
 
 
-class BinarySerializer(Serializer):
-
+class BinarySerializer:
     @staticmethod
     def serialize(inputs: T) -> bytes:
         return msgpack.packb(asdict(inputs))

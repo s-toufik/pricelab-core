@@ -1,11 +1,10 @@
 import datetime
 
-from pricelab_core.domain.dto.validation_status import ValidationStatus
+from pricelab_core.domain.base.validation_status import ValidationStatus
 from pricelab_core.domain.model.candles.candle import Candle
 
 
 class CandleValidator:
-
     def status(self, candle: Candle) -> ValidationStatus:
 
         if not (result := self._is_price_relation_valid(candle)).is_valid:

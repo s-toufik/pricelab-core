@@ -3,12 +3,13 @@ from typing import Dict, TypedDict
 from pricelab_core.application.port.outbound.file_handler.reader import Reader
 from pricelab_core.application.port.outbound.file_handler.writer import Writer
 
+
 class FileHandlerDict(TypedDict):
     reader: Reader
     writer: Writer
 
-class FileHandlerStrategy:
 
+class FileHandlerStrategy:
     def __init__(self, handlers: Dict[str, FileHandlerDict]) -> None:
         self._handlers = handlers
 
