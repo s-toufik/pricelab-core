@@ -46,7 +46,6 @@ jobs:
     container:
       image: python:3.14
     needs: test
-    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
@@ -80,7 +79,7 @@ jobs:
     container:
       image: python:3.14
     needs: build
-    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'develop')
+    if: github.event_name == 'push'
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -94,18 +93,19 @@ jobs:
       - name: Install uv
         run: pip install --upgrade pip uv
 
-      - name: Publish package
+      - name: Publish to TestPyPI (develop)
+        if: github.ref_name == 'develop'
         env:
           UV_TEST_PYPI_URL: ${{ vars.TEST_PYPI_URL }}
-          TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
-          RELEASE_PYPI_TOKEN: ${{ secrets.RELEASE_PYPI_TOKEN }}
+          UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
         run: |
-          if [ "$GITHUB_REF_NAME" = "develop" ]; then
-            echo "Publishing to TestPyPI..."
-            export UV_PUBLISH_TOKEN="$TEST_PYPI_TOKEN"
-            uv publish --publish-url "$UV_TEST_PYPI_URL"
-          elif [ "$GITHUB_REF_NAME" = "main" ]; then
-            echo "Publishing to PyPI..."
-            export UV_PUBLISH_TOKEN="$RELEASE_PYPI_TOKEN"
-            uv publish
-          fi
+          echo "Publishing to TestPyPI..."
+          uv publish --publish-url "$UV_TEST_PYPI_URL"
+
+      - name: Publish to PyPI (main)
+        if: github.ref_name == 'main'
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.RELEASE_PYPI_TOKEN }}
+        run: |
+          echo "Publishing to PyPI..."
+          uv publish
