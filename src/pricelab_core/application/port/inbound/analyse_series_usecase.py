@@ -1,15 +1,9 @@
-from abc import ABC, abstractmethod
-from typing import Sequence, TypeVar
+from typing import Sequence, TypeVar, Protocol
 
 from pricelab_core.domain.model.analytics.analytics import Analytics
-from pricelab_core.domain.model.candles.candle import Candle
-from pricelab_core.domain.model.quotes.quote import Quote
 
-T = TypeVar("T", Sequence[Candle], Sequence[Quote])
+T = TypeVar("T")
 
 
-class AnalyseSeriesUseCase(ABC):
-
-    @abstractmethod
-    def execute(self, sequence: T, params: dict) -> Sequence[Analytics]:
-        pass
+class AnalyseSeriesUseCase(Protocol[T]):
+    def execute(self, sequence: Sequence[T], params: dict) -> Sequence[Analytics]: ...

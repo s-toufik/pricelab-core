@@ -1,17 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import TypeVar, Type
+from typing import TypeVar, Type, Protocol
 
 T = TypeVar("T")
 
 
-class Serializer(ABC):
+class Serializer(Protocol):
+    @staticmethod
+    def serialize(inputs: T) -> bytes: ...
 
     @staticmethod
-    @abstractmethod
-    def serialize(inputs: T) -> bytes:
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def deserialize(inputs: bytes, cls: Type[T]) -> T:
-        pass
+    def deserialize(inputs: bytes, cls: Type[T]) -> T: ...
