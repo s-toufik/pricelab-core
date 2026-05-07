@@ -1,9 +1,10 @@
 from dataclasses import fields
 from typing import Sequence, Tuple
 
-from pricelab_core.adapter.outbound.computation_engine.start_compute_engine import StartComputeEngine
-from pricelab_core.adapter.outbound.logger.logger_instance import logger
-from pricelab_core.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
+
+from pricelab_core.application.port.outbound.computation_engine.engine import Engine
+from pricelab_core.application.port.outbound.logger.logger import Logger
+from pricelab_core.domain.base.const_typing import Kind
 from pricelab_core.domain.model.analytics.analytics import Analytics
 from pricelab_core.domain.model.quotes.quote import Quote
 from pricelab_core.domain.model.quotes.quote_series import QuoteSeries
@@ -11,45 +12,46 @@ from pricelab_core.domain.service.quotes.quote_series_validator import QuoteSeri
 from pricelab_core.domain.service.quotes.quote_validator import QuoteValidator
 
 
-class AnalyseQuotes(AnalyseSeriesUseCase):
-
-    def __init__(self) -> None:
-        self._computation_engine = StartComputeEngine().engine
+class AnalyseQuotesUseCase:
+    def __init__(self, computation_engine: Engine, logger: Logger) -> None:
+        self._computation_engine = computation_engine
+        self._logger = logger
         self._quote_validator = QuoteValidator()
         self._quote_sequence_validator = QuoteSeriesValidator()
-        self._logger = logger
 
-    def execute(self, quotes: Sequence[Quote], params: dict) -> Tuple[Analytics, ...]:
-        sequence = QuoteSeries()
+    def execute(self, sequence: Sequence[Quote], params: dict) -> Tuple[Analytics, ...]:
+        quote_series = QuoteSeries()
 
-        sequence.symbol = quotes[0].symbol
-        sequence.source = quotes[0].source
-        for quote in quotes:
+        quote_series.symbol = sequence[0].symbol
+        quote_series.source = sequence[0].source
+        for quote in sequence:
             if validat_quote := self._quote_validator.is_quote_valid(quote):
                 ask = quote.ask
                 bid = quote.bid
                 last = quote.last
-                sequence.time.append(quote.timestamp)
-                sequence.bid.append(bid)
-                sequence.ask.append(ask)
-                sequence.last.append(last)
-                sequence.volumes.append(quote.volume)
-                sequence.typical_price.append((ask + bid) / 2)
-                sequence.spread.append(ask - last)
+                quote_series.time.append(quote.timestamp)
+                quote_series.bid.append(bid)
+                quote_series.ask.append(ask)
+                quote_series.last.append(last)
+                quote_series.volumes.append(quote.volume)
+                quote_series.typical_price.append((ask + bid) / 2)
+                quote_series.spread.append(ask - last)
             else:
                 self._logger.error(validat_quote.exception.__str__())
 
-        if validat_quote_sequence := self._quote_sequence_validator.is_valid_for_analysis(sequence):
-            window = params.get('window', 2)
-            kind = params.get('kind', 'linear')
-            dx = params.get('dx', 0.2)
-            symbol = sequence.symbol
-            source = sequence.source
-            time = sequence.time
+        if validat_quote_sequence := self._quote_sequence_validator.is_valid_for_analysis(
+            quote_series
+        ):
+            window = params.get("window", 2)
+            kind: Kind = params.get("kind", "linear") # type: ignore
+            dx = params.get("dx", 0.2)
+            symbol = quote_series.symbol
+            source = quote_series.source
+            time = quote_series.time
 
             result = []
             for field in fields(QuoteSeries):
-                field_value = getattr(sequence, field.name)
+                field_value = getattr(quote_series, field.name)
                 if isinstance(field_value[0], float) and isinstance(field_value, Sequence):
                     result.append(
                         Analytics(
@@ -57,12 +59,28 @@ class AnalyseQuotes(AnalyseSeriesUseCase):
                             source=source,
                             name=field.name,
                             time=time,
-                            value=list(self._computation_engine.to_array(field_value)),
-                            log_returns=list(self._computation_engine.log_returns(field_value)),
-                            rolling_average=list(self._computation_engine.rolling_average(field_value, window=window)),
-                            rolling_standard_deviation=list(self._computation_engine.rolling_standard_deviation(field_value,window=window)),
-                            interpolation=list(self._computation_engine.interpolate(field_value, kind=kind)),
-                            integration=self._computation_engine.integrate(field_value, dx=dx)
+                            value=list(self._computation_engine.arithmetic.to_array(field_value)),
+                            log_returns=list(
+                                self._computation_engine.arithmetic.log_returns(field_value)
+                            ),
+                            rolling_average=list(
+                                self._computation_engine.arithmetic.rolling_average(
+                                    field_value, window=window
+                                )
+                            ),
+                            rolling_standard_deviation=list(
+                                self._computation_engine.arithmetic.rolling_standard_deviation(
+                                    field_value, window=window
+                                )
+                            ),
+                            interpolation=list(
+                                self._computation_engine.calculus.interpolate(
+                                    field_value, kind=kind
+                                )
+                            ),
+                            integration=self._computation_engine.calculus.integrate(
+                                field_value, dx=dx
+                            ),
                         )
                     )
             return tuple(result)
