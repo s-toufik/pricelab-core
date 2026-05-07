@@ -1,11 +1,10 @@
 import datetime
 
-from pricelab_core.domain.dto.validation_status import ValidationStatus
+from pricelab_core.domain.base.validation_status import ValidationStatus
 from pricelab_core.domain.model.quotes.quote import Quote
 
 
 class QuoteValidator:
-
     def is_quote_valid(self, quote: Quote) -> ValidationStatus:
 
         if not (result := self._is_prices_positive(quote)).is_valid:

@@ -1,12 +1,11 @@
 from dataclasses import fields
 from typing import Sequence
 
-from pricelab_core.domain.dto.validation_status import ValidationStatus
+from pricelab_core.domain.base.validation_status import ValidationStatus
 from pricelab_core.domain.model.candles.candle_series import CandleSeries
 
 
 class CandleSeriesValidator:
-
     def is_valid_for_analysis(self, sequence: CandleSeries) -> ValidationStatus:
 
         if not (result := self._is_sequence_field_length_valid(sequence)).is_valid:
@@ -20,7 +19,7 @@ class CandleSeriesValidator:
             field.name: len(getattr(sequence, field.name))
             for field in fields(CandleSeries)
             if isinstance(getattr(sequence, field.name), Sequence)
-               and not isinstance(getattr(sequence, field.name), str)
+            and not isinstance(getattr(sequence, field.name), str)
         }
 
         values = lengths.values()
