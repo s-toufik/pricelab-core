@@ -15,7 +15,7 @@ class ValidationStatus:
         return ValidationStatus(True)
 
     @staticmethod
-    def fail(reason: str | None = None, exception: type[Exception] | Exception | None = None) -> ValidationStatus:
+    def fail(reason: str | None = None, exception: Exception | None = None) -> ValidationStatus:
         if isinstance(exception, type):
             exception = exception(reason)
         return ValidationStatus(False, reason, exception)
