@@ -3,8 +3,8 @@ from typing import Dict, Any
 
 from pricelab_core.adapter.outbound.file_handler.strategy import FileHandlerStrategy
 
-class FileHandlerFactory:
 
+class FileHandlerFactory:
     def __init__(self, file_path: str, strategy: FileHandlerStrategy) -> None:
         self._file_path = Path(file_path)
         self._strategy = strategy
@@ -17,18 +17,14 @@ class FileHandlerFactory:
             raise FileNotFoundError(f"File not found at {self._file_path}")
 
         if not self._strategy.supports(self._file_extension()):
-            raise NotImplementedError(
-                f"File extension not supported: {self._file_extension()}"
-            )
+            raise NotImplementedError(f"File extension not supported: {self._file_extension()}")
 
     def _validate_file_for_write(self) -> None:
         if not self._file_path.parent.exists():
             raise FileNotFoundError(f"File location not found at {self._file_path}")
 
         if not self._strategy.supports(self._file_extension()):
-            raise NotImplementedError(
-                f"File extension not supported: {self._file_extension()}"
-            )
+            raise NotImplementedError(f"File extension not supported: {self._file_extension()}")
 
     def read(self) -> Dict[str, Any]:
         self._validate_file_for_read()

@@ -5,10 +5,7 @@ from pricelab_core.adapter.outbound.file_handler.extension.yml_writer import Yml
 
 strategy = FileHandlerStrategy(
     {
-        "yml": {
-            "reader": YmlFileReader(),
-            "writer": YmlFileWriter()
-        },
+        "yml": {"reader": YmlFileReader(), "writer": YmlFileWriter()},
     }
 )
 

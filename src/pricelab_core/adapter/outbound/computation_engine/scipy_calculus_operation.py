@@ -1,20 +1,12 @@
-import numbers
-from typing import Sequence, TypeVar, Any, Literal, Union
+from typing import Sequence, Any
 
 import numpy as np
 from scipy import interpolate, integrate
 
-from pricelab_core.application.port.outbound.computation_engine.scientifc_computation_engine import ScientificEngine
-
-Numeric = TypeVar("Numeric", bound=numbers.Real)
-Kind = Union[
-    Literal["linear", "nearest", "nearest-up", "zero", "slinear", "quadratic", "cubic", "previous", "next"],
-    int
-]
+from pricelab_core.domain.base.const_typing import Numeric, Kind
 
 
-class ScipyScientificEngine(ScientificEngine):
-
+class ScipyCalculusOperation:
     def _to_array(self, sequence: Sequence[Any]) -> np.ndarray:
         return np.asarray(sequence, dtype=np.float64)
 
