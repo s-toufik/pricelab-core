@@ -1,7 +1,7 @@
 from typing import Sequence, TypeVar
 
 from pricelab_core.application.port.inbound.analyse_series_usecase import AnalyseSeriesUseCase
-from pricelab_core.application.port.outbound.logger.logger import Logger
+from pricelab_core.infrastructure.logger.port.logger import Logger
 from pricelab_core.domain.model.candles.candle import Candle
 from pricelab_core.domain.model.quotes.quote import Quote
 

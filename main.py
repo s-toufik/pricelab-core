@@ -1,4 +1,7 @@
-from pricelab_core.bootstrap.container import build_quote_cli, build_candles_cli
+from pricelab_core.bootstrap.dependency_injection.container import (
+    build_quote_cli,
+    build_candles_cli,
+)
 from pricelab_core.domain.model.candles.candle import Candle
 from pricelab_core.domain.model.quotes.quote import Quote
 

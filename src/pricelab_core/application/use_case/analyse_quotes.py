@@ -2,8 +2,8 @@ from dataclasses import fields
 from typing import Sequence, Tuple
 
 
-from pricelab_core.application.port.outbound.computation_engine.engine import Engine
-from pricelab_core.application.port.outbound.logger.logger import Logger
+from pricelab_core.infrastructure.computation_engine.port.engine import Engine
+from pricelab_core.infrastructure.logger.port.logger import Logger
 from pricelab_core.domain.base.const_typing import Kind
 from pricelab_core.domain.model.analytics.analytics import Analytics
 from pricelab_core.domain.model.quotes.quote import Quote
@@ -43,7 +43,7 @@ class AnalyseQuotesUseCase:
             quote_series
         ):
             window = params.get("window", 2)
-            kind: Kind = params.get("kind", "linear") # type: ignore
+            kind: Kind = params.get("kind", "linear")  # type: ignore
             dx = params.get("dx", 0.2)
             symbol = quote_series.symbol
             source = quote_series.source

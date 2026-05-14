@@ -16,6 +16,12 @@ test:
 lint:
 	uv run ruff check .
 
+link:
+	uv run pyright .
+
+typing:
+	uv run mypy .
+
 format:
 	uv run ruff format .
 
