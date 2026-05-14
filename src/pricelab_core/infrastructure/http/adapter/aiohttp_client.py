@@ -4,6 +4,8 @@ from typing import Any
 from typing import Optional
 from urllib.parse import urljoin
 
+from pricelab_core.infrastructure.http.enum.http_method import HttpMethod
+
 
 class AioHttpClient:
     DEFAULT_TIMEOUT = 30
@@ -88,7 +90,7 @@ class AioHttpClient:
         headers: Optional[dict[str, str]] = None,
     ) -> Any:
 
-        return await self.request("GET", endpoint, params=params, headers=headers)
+        return await self.request(HttpMethod.GET.value, endpoint, params=params, headers=headers)
 
     async def post(
         self,
@@ -98,4 +100,4 @@ class AioHttpClient:
         headers: Optional[dict[str, str]] = None,
     ) -> Any:
 
-        return await self.request("POST", endpoint, json=body, headers=headers)
+        return await self.request(HttpMethod.POST.value, endpoint, json=body, headers=headers)
