@@ -1,6 +1,6 @@
 import pytest
 
-from pricelab_core.adapter.outbound.file_handler.handler import Handler
+from pricelab_core.infrastructure.file_handler.adapter.handler import Handler
 
 
 class TestFileHandler:
