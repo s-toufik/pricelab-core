@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pricelab_core.infrastructure.datasource.enum.data_source_type import DataSourceType
-from pricelab_core.infrastructure.datasource.repository.file_source import FileSource
+from pricelab_core.infrastructure.datasource.repository.model.file_source import FileSource
 
 
 class Action(Enum):

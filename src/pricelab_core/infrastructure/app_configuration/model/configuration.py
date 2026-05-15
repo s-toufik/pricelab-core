@@ -10,15 +10,16 @@ from pricelab_core.infrastructure.app_configuration.enum.run_type_environment im
 from pricelab_core.infrastructure.datasource.data_use_case.use_case import UseCase
 from pricelab_core.infrastructure.datasource.enum.data_source_type import DataSourceType
 from pricelab_core.infrastructure.datasource.external_api.model.source import ApiSource
-from pricelab_core.infrastructure.datasource.repository.file_source import FileSource
+from pricelab_core.infrastructure.datasource.repository.model.databse_source import DatabaseSource
+from pricelab_core.infrastructure.datasource.repository.model.file_source import FileSource
 
-DataSourceBaseType = Union[ApiSource, FileSource]
+DataSourceBaseType = Union[ApiSource, FileSource, DatabaseSource]
 
 
 @dataclass(frozen=True, slots=True)
 class AppConfiguration:
     env: RunTypeEnvironment
     run: RunTypeApplication
-    data_source: Dict[DataSourceType, Dict[str, DataSourceBaseType]]
+    datasource: Dict[DataSourceType, Dict[str, DataSourceBaseType]]
     use_case: Dict[str, List[UseCase]]
     telemetry: Dict[str, str]

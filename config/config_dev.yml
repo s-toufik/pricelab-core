@@ -38,10 +38,9 @@ data_source:
       min: 2
       max: 10
     auth:
-      type: userpass
+      type: basic
       username: ${DB_USER}
       password: ${DB_PASSWORD}
-
 
 operation:
 
@@ -95,7 +94,7 @@ telemetry: &telemetry
 app_configuration:
   env: debug
   run: async
-  data_source:
+  datasource:
     {
       api:
         { alpha_vantage: *alpha_vantage,

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Dict, Union
 
 from pricelab_core.infrastructure.datasource.external_api.model.operation import ApiOperation
-from pricelab_core.infrastructure.datasource.repository.operation import FileOperation
+from pricelab_core.infrastructure.datasource.repository.model.operation import FileOperation
 
 Operation = Union[FileOperation, ApiOperation]
 
