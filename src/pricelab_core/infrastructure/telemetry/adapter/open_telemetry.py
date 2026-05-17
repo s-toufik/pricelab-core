@@ -11,6 +11,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 from pricelab_core.infrastructure.app_configuration.enum.run_type_environment import (
     RunTypeEnvironment,
 )
+from pricelab_core.infrastructure.http.context.request_context import request_id_ctx
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -64,14 +65,12 @@ class OpenTelemetryManager:
     def shutdown(self) -> None:
         self._provider.shutdown()
 
-    def trace(
-        self, span_name: str
-    ) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
+    def trace(self, span_name: str, **static_attributes) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
         def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
             @wraps(func)
             async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
                 with self._tracer.start_as_current_span(span_name) as span:
-                    self._enrich_span(span=span, args=args, kwargs=kwargs)
+                    self._enrich_span(span, args, kwargs, static_attributes)
                     try:
                         result = await func(*args, **kwargs)
                         span.set_status(Status(StatusCode.OK))
@@ -86,19 +85,12 @@ class OpenTelemetryManager:
         return decorator
 
     @staticmethod
-    def _enrich_span(span, args, kwargs) -> None:
+    def _enrich_span(span, args, kwargs, static_attributes) -> None:
 
-        method = kwargs.get("method")
-        url = kwargs.get("url")
+        request_id = request_id_ctx.get()
 
-        if method:
-            span.set_attribute(
-                "http.method",
-                method,
-            )
+        if request_id:
+            span.set_attribute("request_id", request_id)
 
-        if url:
-            span.set_attribute(
-                "http.url",
-                url,
-            )
+        for k, v in static_attributes.items():
+            span.set_attribute(k, v)
