@@ -30,6 +30,12 @@ class ResilientClient:
             method_name=HttpMethod.POST.value, method=self._base_client.post
         )
 
+    async def start(self) -> None:
+        await self._base_client.start()
+
+    async def close(self) -> None:
+        await self._base_client.close()
+
     def _build_pipeline(self, method_name: str, method) -> Any:
 
         @self._trace.trace(method_name)
