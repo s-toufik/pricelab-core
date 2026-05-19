@@ -6,6 +6,6 @@ R = TypeVar("R")
 
 class Telemetry(Protocol):
     def trace(
-        self, span_name: str, **static_attributes: Dict[str, Any]
+        self, span_name: str, static_attributes: Dict[str, Any]
     ) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]: ...
     def shutdown(self) -> None: ...
