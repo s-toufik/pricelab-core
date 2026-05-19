@@ -1,4 +1,4 @@
-data_source:
+connector:
   - &alpha_vantage
     name: alpha_vantage
     type: api
@@ -22,7 +22,6 @@ data_source:
   - &local_fs
     name: local_fs
     type: file
-    engine: local
     base_path: ./data/files
     auth:
       type: none
@@ -42,75 +41,66 @@ data_source:
       username: ${DB_USER}
       password: ${DB_PASSWORD}
 
-operation:
+  - &telemetry
+      name: OpenTelemetry
+      type: telemetry
+      host: http://localhost
+      port: 4317
+      auth:
+        type: none
 
-  - &intraday_series
+operation:
+  - &intraday_stock
     name: intraday_series
-    source: *alpha_vantage
-    type: api
-    path: /query
+    connector: *alpha_vantage
+    endpoint: /query
     method: GET
+    parameters:
+      function: TIME_SERIES_INTRADAY
+      symbol: ["IBM"]
+      interval: 5min
 
   - &intraday_chart
     name: yahoo_chart
-    source: *yahoo_finance
-    type: api
-    path: /v8/finance/chart
+    connector: *yahoo_finance
+    endpoint: /v8/finance/chart
     method: GET
-
-  - &read_csv_prices
-    name: read_csv_prices
-    source: *local_fs
-    type: file
-    action: read
-
-use_case:
-
-  - &get_intraday_stock_ibm
-    name: get_intraday_stock
-    operation: *intraday_series
     parameters:
-      function: TIME_SERIES_INTRADAY
-      symbol: IBM
-      interval: 5min
+      symbol: ["IBM"]
 
-  - &get_intraday_chart_ibm
+cronjob:
+  - &get_intraday_stock
+    name: get_intraday_stock
+    operation: *intraday_stock
+    cron: "*/5 9-17 * * 1-5"
+
+  - &get_intraday_chart
     name: get_intraday_chart
     operation: *intraday_chart
-    parameters:
-      symbol: IBM
-
-  - &load_price_ibm
-    name: load_price_csv
-    operation: *read_csv_prices
-    parameters:
-      file_name: IBM_2024-01-15.csv
-      symbol: IBM
-      date: "2024-01-15"
-
-telemetry: &telemetry
-    collector: http://localhost:4317
+    cron: "*/5 9-17 * * 1-5"
 
 app_configuration:
   env: debug
   run: async
-  datasource:
-    {
-      api:
-        { alpha_vantage: *alpha_vantage,
-          yahoo_finance: *yahoo_finance },
-      file: {
+  connector:
+    api: {
+      alpha_vantage: *alpha_vantage,
+      yahoo_finance: *yahoo_finance
+    }
+    file: {
         local_fs: *local_fs
-      },
-      cache: {},
-      database: {
-        postgres: *postgres
-      }
     }
-  use_case:
-    {
-      get_intraday_stock: [*get_intraday_stock_ibm],
-      get_intraday_chart: [*get_intraday_chart_ibm],
-      load_price: [*load_price_ibm]
+    cache: {}
+    database: {
+      postgres: *postgres
     }
-  telemetry: *telemetry
+    telemetry: {
+      open_telemetry: *telemetry
+    }
+  operation: {
+    intraday_stock: *intraday_stock,
+    intraday_chart: *intraday_chart
+  }
+  cronjob:
+    - *get_intraday_stock
+    - *get_intraday_chart
