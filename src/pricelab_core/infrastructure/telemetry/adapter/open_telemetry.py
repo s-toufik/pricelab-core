@@ -66,12 +66,12 @@ class OpenTelemetryManager:
     def shutdown(self) -> None:
         self._provider.shutdown()
 
-    def trace(self, span_name: str, **static_attributes: Dict[str, Any]) -> TraceType:
+    def trace(self, span_name: str, static_attributes: Dict[str, Any]) -> TraceType:
         def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
             @wraps(func)
             async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
                 with self._tracer.start_as_current_span(span_name) as span:
-                    self._enrich_span(span, **static_attributes)
+                    self._enrich_span(span, static_attributes)
                     try:
                         result = await func(*args, **kwargs)
                         span.set_status(Status(StatusCode.OK))
@@ -86,7 +86,7 @@ class OpenTelemetryManager:
         return decorator
 
     @staticmethod
-    def _enrich_span(span, **static_attributes: Dict[str, Any]) -> None:
+    def _enrich_span(span, static_attributes: Dict[str, Any]) -> None:
 
         request_id = request_id_ctx.get()
 
