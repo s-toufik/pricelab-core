@@ -65,7 +65,9 @@ class OpenTelemetryManager:
     def shutdown(self) -> None:
         self._provider.shutdown()
 
-    def trace(self, span_name: str, **static_attributes) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
+    def trace(
+        self, span_name: str, **static_attributes
+    ) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
         def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
             @wraps(func)
             async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
