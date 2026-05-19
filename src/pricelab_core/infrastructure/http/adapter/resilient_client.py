@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import ParamSpec, Final, Any
 
 from pricelab_core.infrastructure.http.enum.http_method import HttpMethod
@@ -42,8 +43,8 @@ class ResilientClient:
             span_name=method_name,
             static_attributes={
                 "HttpMethod": method_name,
-                **self._retry.settings,
-                **self._circuit_breaker.settings,
+                **asdict(self._retry.settings),
+                **asdict(self._circuit_breaker.settings)
             },
         )
         @self._retry.decorator
