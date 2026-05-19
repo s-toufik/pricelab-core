@@ -10,9 +10,14 @@ R = TypeVar("R")
 
 class RetryPolicy:
     def __init__(self, settings: RetrySettings = RetrySettings()):
+        self._settings = settings
         self._retries: int = settings.retries
         self._base_delay: float = settings.base_delay
         self._retry_on: Tuple[Type[Exception], ...] = settings.retry_on
+
+    @property
+    def settings(self) -> RetrySettings:
+        return self._settings
 
     def decorator(self, func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
 

@@ -23,6 +23,10 @@ class CircuitBreakerPolicy:
         self._last_exception: Exception | None = None
 
     @property
+    def settings(self) -> CircuitBreakerSettings:
+        return self._settings
+
+    @property
     def last_exception(self) -> Exception | None:
         return self._last_exception
 

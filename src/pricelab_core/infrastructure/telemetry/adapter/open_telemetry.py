@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import ParamSpec, TypeVar, Callable, Awaitable
+from typing import ParamSpec, TypeVar, Callable, Awaitable, Any, Dict
 
 from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode, Tracer
@@ -15,6 +15,7 @@ from pricelab_core.infrastructure.http.context.request_context import request_id
 
 P = ParamSpec("P")
 R = TypeVar("R")
+TraceType = Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]
 
 
 class OpenTelemetryManager:
@@ -65,14 +66,12 @@ class OpenTelemetryManager:
     def shutdown(self) -> None:
         self._provider.shutdown()
 
-    def trace(
-        self, span_name: str, **static_attributes
-    ) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
+    def trace(self, span_name: str, **static_attributes: Dict[str, Any]) -> TraceType:
         def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
             @wraps(func)
             async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
                 with self._tracer.start_as_current_span(span_name) as span:
-                    self._enrich_span(span, args, kwargs, static_attributes)
+                    self._enrich_span(span, **static_attributes)
                     try:
                         result = await func(*args, **kwargs)
                         span.set_status(Status(StatusCode.OK))
@@ -87,7 +86,7 @@ class OpenTelemetryManager:
         return decorator
 
     @staticmethod
-    def _enrich_span(span, args, kwargs, static_attributes) -> None:
+    def _enrich_span(span, **static_attributes: Dict[str, Any]) -> None:
 
         request_id = request_id_ctx.get()
 
