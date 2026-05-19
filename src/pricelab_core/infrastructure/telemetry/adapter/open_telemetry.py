@@ -94,4 +94,4 @@ class OpenTelemetryManager:
             span.set_attribute("request_id", request_id)
 
         for k, v in static_attributes.items():
-            span.set_attribute(k, v)
+            span.set_attribute(k, v.__str__())
