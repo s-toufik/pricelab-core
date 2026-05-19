@@ -1,14 +1,9 @@
-from pprint import pprint
-
 from pricelab_core.bootstrap.dependency_injection.container import (
     build_quote_cli,
-    build_candles_cli,
-    load_application_configuration,
+    build_candles_cli
 )
 from pricelab_core.domain.model.candles.candle import Candle
 from pricelab_core.domain.model.quotes.quote import Quote
-from pricelab_core.infrastructure.app_configuration.model.configuration import AppConfiguration
-
 
 def run_quote_usecase():
 
@@ -139,16 +134,9 @@ def run_candles_usecase():
 
     build_candles_cli().run(candles)
 
-
-def run_load_configuration() -> AppConfiguration:
-    return load_application_configuration()
-
-
 def main() -> None:
-    # run_candles_usecase()
-    # run_quote_usecase()
-    pprint(run_load_configuration())
-
+    run_candles_usecase()
+    run_quote_usecase()
 
 if __name__ == "__main__":
     main()
