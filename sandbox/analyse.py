@@ -1,9 +1,10 @@
 from pricelab_core.bootstrap.dependency_injection.container import (
     build_quote_cli,
-    build_candles_cli
+    build_candles_cli,
 )
 from pricelab_core.domain.model.candles.candle import Candle
 from pricelab_core.domain.model.quotes.quote import Quote
+
 
 def run_quote_usecase():
 
@@ -134,9 +135,11 @@ def run_candles_usecase():
 
     build_candles_cli().run(candles)
 
+
 def main() -> None:
     run_candles_usecase()
     run_quote_usecase()
+
 
 if __name__ == "__main__":
     main()
