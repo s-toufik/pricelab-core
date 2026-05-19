@@ -8,10 +8,10 @@ from starlette.responses import Response
 from pricelab_core.infrastructure.http.context.request_context import request_id_ctx
 
 
-
 class RequestIDMiddleware(BaseHTTPMiddleware):
-
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
 
         request_id = request.headers.get("X-Request-ID") or self._generate_request_id()
         request_id_ctx.set(request_id)
