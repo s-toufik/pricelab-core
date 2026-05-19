@@ -38,10 +38,16 @@ class ResilientClient:
 
     def _build_pipeline(self, method_name: str, method) -> Any:
 
-        @self._trace.trace(method_name)
+        @self._trace.trace(
+            span_name=method_name,
+            static_attributes={
+                "HttpMethod": method_name,
+                **self._retry.settings,
+                **self._circuit_breaker.settings,
+            },
+        )
         @self._retry.decorator
         async def wrapped(*args: P.args, **kwargs: P.kwargs):
-
             async def execute():
                 return await method(*args, **kwargs)
 
