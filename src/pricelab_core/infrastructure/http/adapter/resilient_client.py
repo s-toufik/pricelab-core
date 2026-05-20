@@ -44,7 +44,7 @@ class ResilientClient:
             static_attributes={
                 "HttpMethod": method_name,
                 **asdict(self._retry.settings),
-                **asdict(self._circuit_breaker.settings)
+                **asdict(self._circuit_breaker.settings),
             },
         )
         @self._retry.decorator
