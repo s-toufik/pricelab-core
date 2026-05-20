@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pricelab-core"
-version = "0.4.3"
+version = "0.4.31"
 authors = [
     { name = "Toufik Saouchi", email = "toufik.saouchi@gmail.com" },
 ]
@@ -19,6 +19,7 @@ license = "MIT"
 dependencies = [
     "numpy",
     "aiohttp",
+    "orjson",
     "opentelemetry-api",
     "opentelemetry-sdk",
     "opentelemetry-exporter-otlp",
