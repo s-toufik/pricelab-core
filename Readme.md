@@ -1,33 +1,52 @@
 # Description
-This is a core library for PriceLab. It provides a set of tools for building PriceLab microservices. 
-It includes a set of common functionality. 
 
-- Infrastructure such as logging, telemetry, configuration, Http client, serialization and more.
-- Business logic such as domain models, validation shared among microservices.
+This is a core library for PriceLab, providing a shared foundation for building microservices.
+It offers reusable components organized into two main areas:
+
+### Infrastructure
+Common technical capabilities used across services, including:
+
+- Logging
+- Telemetry and observability
+- Configuration management
+- HTTP client utilities
+- Serialization and deserialization
+- ...
+
+### Business Logic
+Shared domain-level building blocks, including:
+
+- Core domain models
+- Validation rules and utilities
+- Cross-service business abstractions
 
 # Installation
-To install the latest version of the library, run the following command:
+
+To install the latest stable version of the library:
 
 ```bash
 pip install pricelab-core
 ```
 
-To install the latest version of the library from the test PyPI repository, run the following command:
+Test environment installation
+
+To install the latest version from the Test PyPI repository:
 
 ```bash
 pip install -i https://test.pypi.org/simple/ pricelab-core
 ```
 
 > [!WARNING]
-> The test version of the library is for testing purposes only and is not intended for use in production.
+> The Test PyPI version includes the latest features but may not be stable. It is intended for development and testing purposes only and should not be used in production environments.
 
 ## Example Usage
-The following example demonstrates how to use the library to create a simple resilient http client, that will have:
 
-- Base http client (async)
-- Retry
-- Circuit breaker
-- Telemetry
+The following example demonstrates how to use the library to create a simple resilient HTTP client with the following capabilities:
+
+- Asynchronous base HTTP client
+- Retry mechanism
+- Circuit breaker pattern
+- Telemetry and observability integration
 
 ```python
     base_client: HttpClient = AioHttpClient(
