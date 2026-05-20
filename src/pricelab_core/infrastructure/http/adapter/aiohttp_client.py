@@ -50,19 +50,19 @@ class AioHttpClient:
         self._session = None
 
     async def request(
-            self,
-            method: str,
-            endpoint: str,
-            *,
-            params: Optional[dict[str, Any]] = None,
-            json: Optional[dict[str, Any]] = None,
-            headers: Optional[dict[str, str]] = None,
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        params: Optional[dict[str, Any]] = None,
+        json: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
     ) -> Any:
 
         session = self._ensure_session()
 
         async with session.request(
-                method=method, url=self._build_url(endpoint), params=params, json=json, headers=headers
+            method=method, url=self._build_url(endpoint), params=params, json=json, headers=headers
         ) as response:
             response.raise_for_status()
             content_type = response.headers.get("Content-Type", "")
@@ -73,21 +73,21 @@ class AioHttpClient:
             return await response.text()
 
     async def get(
-            self,
-            endpoint: str,
-            *,
-            params: Optional[dict[str, Any]] = None,
-            headers: Optional[dict[str, str]] = None,
+        self,
+        endpoint: str,
+        *,
+        params: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
     ) -> Any:
 
         return await self.request(HttpMethod.GET.value, endpoint, params=params, headers=headers)
 
     async def post(
-            self,
-            endpoint: str,
-            *,
-            body: Optional[dict[str, Any]] = None,
-            headers: Optional[dict[str, str]] = None,
+        self,
+        endpoint: str,
+        *,
+        body: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
     ) -> Any:
 
         return await self.request(HttpMethod.POST.value, endpoint, json=body, headers=headers)
