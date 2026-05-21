@@ -1,0 +1,18 @@
+operation:
+  alpha_vantage_intraday_stock:
+    name: intraday_stock
+    connector: ${connector.alpha_vantage}
+    endpoint: /query
+    method: GET
+    parameters:
+      function: TIME_SERIES_WEEKLY
+
+  twelve_data_intraday_stock:
+    name: intraday_stock
+    connector: ${connector.twelve_data}
+    endpoint: /time_series
+    method: GET
+    parameters:
+      symbol: ["AAPL"]
+      interval: 5min
+      apikey: demo

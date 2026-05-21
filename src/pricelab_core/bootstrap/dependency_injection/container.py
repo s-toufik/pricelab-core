@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import dotenv
 
@@ -12,8 +13,17 @@ from pricelab_core.domain.model.quotes.quote import Quote
 from pricelab_core.infrastructure.app_configuration.adapter.load_configuration import (
     LoadConfiguration,
 )
+from pricelab_core.infrastructure.app_configuration.adapter.omega_configuration_reader import (
+    OmegaConfigurationReader,
+)
+from pricelab_core.infrastructure.app_configuration.enum.run_type_environment import (
+    RunTypeEnvironment,
+)
 from pricelab_core.infrastructure.app_configuration.model.configuration import AppConfiguration
 from pricelab_core.infrastructure.app_configuration.port.configuration import Configuration
+from pricelab_core.infrastructure.app_configuration.port.configuration_reader import (
+    ConfigurationReader,
+)
 
 
 def build_candles_cli() -> AnalyticsCLI:
@@ -34,14 +44,20 @@ def build_quote_cli() -> AnalyticsCLI:
 
 def load_application_configuration() -> AppConfiguration:
     dotenv.load_dotenv()
-    configuration_file_path = os.getenv("CONFIGURATION_FILE_PATH")
+    run_type_environment: RunTypeEnvironment = RunTypeEnvironment(os.getenv("APP_ENV", "dev"))
+    configuration_directory: Path = Path(os.getenv("CONFIGURATION_DIR", ""))
 
-    if not configuration_file_path:
+    logger.info(f"Loading configuration for {run_type_environment} environment")
+    if not configuration_directory:
         exception = FileNotFoundError("No configuration file path provided")
         logger.critical(exception.__str__())
         raise exception
 
-    configuration_loader: Configuration = LoadConfiguration(configuration_file_path, logger)
+    configuration_reader: ConfigurationReader = OmegaConfigurationReader(
+        run_type_environment, configuration_directory
+    )
+
+    configuration_loader: Configuration = LoadConfiguration(configuration_reader, logger)
     configuration = configuration_loader.load()
     if not configuration:
         exception = ValueError("No configuration loaded")

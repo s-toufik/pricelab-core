@@ -1,0 +1,61 @@
+connector:
+  alpha_vantage:
+    name: alpha_vantage
+    type: api
+    base_url: https://www.alphavantage.co
+    timeout: 5
+    retry: 3
+    auth:
+      type: token
+      key_name: apikey
+      key_value: ${oc.env:ALPHA_VANTAGE_API_KEY}
+
+  twelve_data:
+    name: twelve_data
+    type: api
+    base_url: https://api.twelvedata.com
+    timeout: 5
+    retry: 3
+    auth:
+      type: token
+      key_name: api_token
+      key_value: ${oc.env:TWELVE_DATA_API_KEY}
+
+  yahoo_finance:
+    name: yahoo_finance
+    type: api
+    base_url: https://query1.finance.yahoo.com
+    timeout: 5
+    retry: 3
+    auth:
+      type: none
+
+  local_fs:
+    name: local_fs
+    type: file
+    base_path: ./data/files
+    auth:
+      type: none
+
+  postgres:
+    name: postgres
+    type: database
+    engine: postgres_sql
+    host: ${oc.env:DB_HOST}
+    port: 5432
+    default_name: ${oc.env:DB_NAME}
+    pool:
+      min: 2
+      max: 10
+    auth:
+      type: basic
+      username: ${oc.env:DB_USER}
+      password: ${oc.env:DB_PASSWORD}
+
+  telemetry:
+    name: OpenTelemetry
+    type: telemetry
+    host: http://localhost
+    port: 4317
+    auth:
+      type: none

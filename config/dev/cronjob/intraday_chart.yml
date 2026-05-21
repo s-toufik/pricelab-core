@@ -1,0 +1,5 @@
+cronjob:
+  get_intraday_chart:
+    name: get_intraday_chart
+    operation: ${operation.yahoo_finance_intraday_chart}
+    cron: "*/5 9-17 * * 1-5"
