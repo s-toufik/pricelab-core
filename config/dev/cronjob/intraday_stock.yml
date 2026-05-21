@@ -1,0 +1,5 @@
+cronjob:
+  get_intraday_stock:
+    name: get_intraday_stock
+    operation: ${operation.twelve_data_intraday_stock}
+    cron: "*/5 9-17 * * 1-5"
