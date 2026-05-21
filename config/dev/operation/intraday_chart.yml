@@ -1,0 +1,8 @@
+operation:
+  yahoo_finance_intraday_chart:
+    name: yahoo_chart
+    connector: ${connector.yahoo_finance}
+    endpoint: /v8/finance/chart
+    method: GET
+    parameters:
+      symbol: ["IBM"]
