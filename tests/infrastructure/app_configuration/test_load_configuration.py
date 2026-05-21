@@ -1,106 +1,136 @@
-from typing import cast
-from unittest.mock import MagicMock, create_autospec, patch
+import threading
+from unittest.mock import create_autospec
+import pytest
+
 from pricelab_core.infrastructure.app_configuration.adapter.load_configuration import (
     LoadConfiguration,
 )
 from pricelab_core.infrastructure.app_configuration.model.configuration import AppConfiguration
+from pricelab_core.infrastructure.app_configuration.port.configuration_reader import (
+    ConfigurationReader,
+)
 from pricelab_core.infrastructure.logger.port.logger import Logger
 
-FAKE_CONFIG = {
-    "app_configuration": {
-        "env": "debug",
-        "run": "async",
-        "connector": {},
-        "operation": {},
-        "cronjob": [],
-    }
-}
+
+@pytest.fixture(autouse=True)
+def reset_singleton():
+    LoadConfiguration._instance = None
+    yield
+    LoadConfiguration._instance = None
 
 
-class TestLoadConfiguration:
-    def setup_method(self):
-        LoadConfiguration._instance = None
+@pytest.fixture
+def mock_reader():
+    return create_autospec(ConfigurationReader, instance=True)
 
-    @staticmethod
-    def _create_logger_mock():
-        return create_autospec(Logger, instance=True)
 
-    @staticmethod
-    def _mock_handler(mock_handler, config=None):
-        if config is None:
-            config = FAKE_CONFIG
-        handler_instance = MagicMock()
-        handler_instance.read.return_value = config
-        mock_handler.return_value = handler_instance
-        return handler_instance
+@pytest.fixture
+def mock_logger():
+    return create_autospec(Logger, instance=True)
 
-    @patch("pricelab_core.infrastructure.app_configuration.adapter.load_configuration.Handler")
-    def test_should_cache_configuration(self, mock_handler):
-        handler_instance = self._mock_handler(mock_handler)
-        logger_mock = self._create_logger_mock()
-        loader = LoadConfiguration(
-            file_path="dummy.yaml",
-            logger=cast(Logger, logger_mock),
-        )
-        result1 = loader.load()
-        result2 = loader.load()
-        assert isinstance(result1, AppConfiguration)
-        assert result1 is result2
-        handler_instance.read.assert_called_once()
-        logger_mock.critical.assert_not_called()
 
-    @patch("pricelab_core.infrastructure.app_configuration.adapter.load_configuration.Handler")
-    def test_should_reload_configuration(self, mock_handler):
-        handler_instance = self._mock_handler(mock_handler)
-        logger_mock = self._create_logger_mock()
-        loader = LoadConfiguration(
-            file_path="dummy.yaml",
-            logger=cast(Logger, logger_mock),
-        )
-        cached_result = loader.load()
-        reloaded_result = loader.reload()
-        assert isinstance(cached_result, AppConfiguration)
-        assert isinstance(reloaded_result, AppConfiguration)
-        assert cached_result is not reloaded_result
-        assert handler_instance.read.call_count == 2
-        logger_mock.critical.assert_not_called()
+@pytest.fixture
+def mock_config():
+    return create_autospec(AppConfiguration, instance=True)
 
-    @patch("pricelab_core.infrastructure.app_configuration.adapter.load_configuration.Handler")
-    def test_should_return_cached_instance_after_reload(self, mock_handler):
-        handler_instance = self._mock_handler(mock_handler)
-        logger_mock = self._create_logger_mock()
-        loader = LoadConfiguration(
-            file_path="dummy.yaml",
-            logger=cast(Logger, logger_mock),
-        )
-        reloaded = loader.reload()
-        cached = loader.load()
-        assert reloaded is cached
-        handler_instance.read.assert_called_once()
 
-    @patch("pricelab_core.infrastructure.app_configuration.adapter.load_configuration.Handler")
-    def test_should_log_critical_when_handler_fails(self, mock_handler):
-        handler_instance = MagicMock()
-        handler_instance.read.side_effect = RuntimeError("configuration failure")
-        mock_handler.return_value = handler_instance
-        logger_mock = self._create_logger_mock()
-        loader = LoadConfiguration(
-            file_path="dummy.yaml",
-            logger=cast(Logger, logger_mock),
-        )
+@pytest.fixture
+def loader(mock_reader, mock_logger):
+    return LoadConfiguration(mock_reader, mock_logger)
 
+
+class TestSingleton:
+    def test_same_instance_returned_on_multiple_instantiations(self, mock_reader, mock_logger):
+        instance_a = LoadConfiguration(mock_reader, mock_logger)
+        instance_b = LoadConfiguration(mock_reader, mock_logger)
+        assert instance_a is instance_b
+
+    def test_singleton_is_thread_safe(self, mock_reader, mock_logger):
+        instances = []
+
+        def create_instance():
+            instances.append(LoadConfiguration(mock_reader, mock_logger))
+
+        threads = [threading.Thread(target=create_instance) for _ in range(20)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert all(i is instances[0] for i in instances)
+
+
+class TestLoad:
+    def test_load_calls_reader_on_first_call(self, loader, mock_reader, mock_config):
+        mock_reader.read.return_value = mock_config
+        result = loader.load()
+        mock_reader.read.assert_called_once()
+        assert result is mock_config
+
+    def test_load_returns_cached_config_on_subsequent_calls(self, loader, mock_reader, mock_config):
+        mock_reader.read.return_value = mock_config
+        loader.load()
+        loader.load()
+        loader.load()
+        mock_reader.read.assert_called_once()
+
+    def test_load_returns_none_and_logs_on_reader_exception(self, loader, mock_reader, mock_logger):
+        mock_reader.read.side_effect = Exception("connection failed")
         result = loader.load()
         assert result is None
-        logger_mock.critical.assert_called_once()
+        mock_logger.critical.assert_called_once_with("connection failed")
 
-    def test_should_behave_as_singleton(self):
-        logger_mock = self._create_logger_mock()
-        loader1 = LoadConfiguration(
-            file_path="config1.yaml",
-            logger=cast(Logger, logger_mock),
-        )
-        loader2 = LoadConfiguration(
-            file_path="config2.yaml",
-            logger=cast(Logger, logger_mock),
-        )
-        assert loader1 is loader2
+    def test_load_does_not_cache_on_exception(self, loader, mock_reader, mock_logger, mock_config):
+        mock_reader.read.side_effect = [Exception("fail"), mock_config]
+        first = loader.load()
+        second = loader.load()
+        assert first is None
+        assert second is mock_config
+        assert mock_reader.read.call_count == 2
+
+    def test_load_returns_none_when_reader_returns_none(self, loader, mock_reader):
+        mock_reader.read.return_value = None
+        result = loader.load()
+        assert result is None
+
+
+class TestReload:
+    def test_reload_calls_reader_regardless_of_cache(self, loader, mock_reader, mock_config):
+        mock_reader.read.return_value = mock_config
+        loader.load()
+        loader.reload()
+        assert mock_reader.read.call_count == 2
+
+    def test_reload_updates_cached_config(self, loader, mock_reader, mock_config):
+        old_config = create_autospec(AppConfiguration, instance=True)
+        new_config = mock_config
+        mock_reader.read.side_effect = [old_config, new_config]
+
+        loader.load()
+        result = loader.reload()
+
+        assert result is new_config
+        assert loader._cached_config is new_config
+
+    def test_reload_returns_new_config(self, loader, mock_reader, mock_config):
+        mock_reader.read.return_value = mock_config
+        result = loader.reload()
+        assert result is mock_config
+
+    def test_reload_is_thread_safe(self, loader, mock_reader, mock_config):
+        mock_reader.read.return_value = mock_config
+        errors = []
+
+        def do_reload():
+            try:
+                loader.reload()
+            except Exception as e:
+                errors.append(e)
+
+        threads = [threading.Thread(target=do_reload) for _ in range(10)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert errors == []
