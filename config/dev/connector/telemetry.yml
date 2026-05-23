@@ -1,6 +1,6 @@
 connector:
   telemetry:
-    name: OpenTelemetry
+    name: open_telemetry
     type: telemetry
     host: http://localhost
     port: 4317
