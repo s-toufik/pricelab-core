@@ -32,6 +32,7 @@ class DatabaseConnector(BaseConnector):
 class FileConnector(BaseConnector):
     base_path: str
 
+
 @dataclass(slots=True)
 class TelemetryConnector(BaseConnector):
     host: str
