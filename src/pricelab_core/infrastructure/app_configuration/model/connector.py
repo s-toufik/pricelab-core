@@ -32,10 +32,10 @@ class DatabaseConnector(BaseConnector):
 class FileConnector(BaseConnector):
     base_path: str
 
-
+@dataclass(slots=True)
 class TelemetryConnector(BaseConnector):
     host: str
-    port: str
+    port: int
 
 
 ConnectorTyping = Union[ApiConnector, FileConnector, DatabaseConnector, TelemetryConnector]
