@@ -1,4 +1,4 @@
-from pricelab_core.bootstrap.dependency_injection.container import (
+from sandbox.container import (
     build_quote_cli,
     build_candles_cli,
 )

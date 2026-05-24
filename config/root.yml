@@ -6,7 +6,6 @@ app_configuration:
     api:
       alpha_vantage: ${connector.alpha_vantage}
       twelve_data: ${connector.twelve_data}
-      yahoo_finance: ${connector.yahoo_finance}
     file:
       local_fs: ${connector.local_fs}
     database:
@@ -17,8 +16,6 @@ app_configuration:
   operation:
     alpha_vantage_intraday_stock: ${operation.alpha_vantage_intraday_stock}
     twelve_data_intraday_stock: ${operation.twelve_data_intraday_stock}
-    yahoo_finance_intraday_chart: ${operation.yahoo_finance_intraday_chart}
 
   cronjob:
     - ${cronjob.get_intraday_stock}
-    - ${cronjob.get_intraday_chart}
