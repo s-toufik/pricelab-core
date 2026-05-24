@@ -193,23 +193,23 @@ The following example demonstrates how to build a resilient asynchronous HTTP cl
 
 ```python
 # Create the base asynchronous HTTP client
-base_client = AioHttpClient(base_url="<base url>")
+base_client: HttpClient = AioHttpClient(base_url="<base url>")
 
 # Configure retry policy
-retry_policy = RetryPolicy(
+retry_policy: Retry = RetryPolicy(
     RetrySettings(max_attempts=3, delay_seconds=1)
 )
 
 # Configure circuit breaker
-circuit_breaker = CircuitBreakerPolicy(
+circuit_breaker: CircuitBreaker = CircuitBreakerPolicy(
     CircuitBreakerSettings(failure_threshold=5, recovery_timeout=30)
 )
 
 # Configure telemetry
-telemetry = OpenTelemetryManager(service_name="<external api name>")
+telemetry: Telemetry = OpenTelemetryManager(service_name="<external api name>")
 
 # Create resilient HTTP client
-client = ResilientClient(
+client: ResilientHttpClient = ResilientClient(
     base_client=base_client,
     circuit_breaker=circuit_breaker,
     retry_policy=retry_policy,
