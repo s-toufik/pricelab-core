@@ -1,5 +1,6 @@
 import time
-from typing import ParamSpec
+from asyncio import Lock
+from typing import ParamSpec, Optional
 
 from pricelab_core.infrastructure.http.configuration.circuite_breaker_configuration import (
     CircuitBreakerSettings,
@@ -13,14 +14,17 @@ P = ParamSpec("P")
 
 
 class CircuitBreakerPolicy:
-    def __init__(self, settings: CircuitBreakerSettings = CircuitBreakerSettings()):
+    def __init__(self, settings: Optional[CircuitBreakerSettings] = None):
 
-        self._settings = settings
+        self._settings = settings or CircuitBreakerSettings()
         self._state: CircuitState = CircuitState.CLOSED
         self._failure_counter: int = 0
         self._success_counter: int = 0
         self._last_failure_time: float = 0
         self._last_exception: Exception | None = None
+
+        self._clock = time.time
+        self._lock = Lock()
 
     @property
     def settings(self) -> CircuitBreakerSettings:
@@ -42,7 +46,7 @@ class CircuitBreakerPolicy:
 
         # OPEN
         if self._state == CircuitState.OPEN:
-            return time.time() - self._last_failure_time > self._settings.recovery_timeout
+            return self._clock() - self._last_failure_time > self._settings.recovery_timeout
 
         # HALF OPEN
         return True
@@ -63,27 +67,28 @@ class CircuitBreakerPolicy:
     def _on_failure(self, exception: Exception) -> None:
 
         self._failure_counter += 1
-        self._last_failure_time = time.time()
+        self._last_failure_time = self._clock()
         self._last_exception = exception
 
         if self._failure_counter >= self._settings.failure_threshold:
             self._state = CircuitState.OPEN
 
     async def call(self, func, *args: P.args, **kwargs: P.kwargs):
-
-        if not self._can_attempt():
-            raise CircuitBreakerOpenException(
-                f"Circuit breaker open (last failure: {self._last_exception})"
-            )
-
-        if self._state == CircuitState.OPEN:
-            self._state = CircuitState.HALF_OPEN
+        async with self._lock:
+            if not self._can_attempt():
+                raise CircuitBreakerOpenException(
+                    f"Circuit breaker open (last failure: {self._last_exception})"
+                )
+            if self._state == CircuitState.OPEN:
+                self._state = CircuitState.HALF_OPEN
 
         try:
             result = await func(*args, **kwargs)
-            self._on_success()
+            async with self._lock:
+                self._on_success()
             return result
 
         except Exception as exception:
-            self._on_failure(exception)
+            async with self._lock:
+                self._on_failure(exception)
             raise
