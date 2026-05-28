@@ -77,7 +77,7 @@ Services are configured using YAML files combined with environment variables.
 flowchart LR
     A(Connector) --> D(Root configuration)
     B(Operation)  --> D
-    C(Operation)  --> D
+    C(Cronjob)  --> D
     D --> E(Schema validation)
     E --> F(Configuration model)
 ```
@@ -184,17 +184,17 @@ flowchart LR
 #### Complete Example
 
 ```python
-# Base async HTTP client
+# Base async HTTP client via AioHttpClient
 base_client: HttpClient = AioHttpClient(base_url="<base url>")
 
-# Retry policy: up to 3 attempts, 1-second delay between retries
+# Retry policy
 retry_policy: Retry = RetryPolicy(
     RetrySettings(max_attempts=3, delay_seconds=1)
 )
 
-# Circuit breaker: opens after 5 failures, recovers after 30 seconds
+# Circuit breaker
 circuit_breaker: CircuitBreaker = CircuitBreakerPolicy(
-    CircuitBreakerSettings(failure_threshold=5, recovery_timeout=30)
+    CircuitBreakerSettings(failure_threshold=2, recovery_timeout=30)
 )
 
 # Telemetry via OpenTelemetry
