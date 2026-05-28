@@ -77,7 +77,7 @@ Services are configured using YAML files combined with environment variables.
 flowchart LR
     A(Connector) --> D(Root configuration)
     B(Operation)  --> D
-    C(Operation)  --> D
+    C(Cronjob)  --> D
     D --> E(Schema validation)
     E --> F(Configuration model)
 ```
