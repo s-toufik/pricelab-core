@@ -1,220 +1,213 @@
-# Documentation
+# pricelab-core
 
-## Summary
-- [Description](#description)
+`pricelab-core` is the foundational shared library of the PriceLab ecosystem. It provides reusable infrastructure and
+domain components that standardize development across microservices and internal services.
+
+**Design principles:** Modularity · Reusability · Maintainability
+
+---
+
+## Table of Contents
+
 - [Features](#features)
+    - [Infrastructure Modules](#infrastructure-modules)
+    - [Business Logic Modules](#business-logic-modules)
 - [Installation](#installation)
-- [Example Usage](#example-usage)
+- [Usage Examples](#usage-examples)
+    - [Microservice Configuration](#microservice-configuration)
+    - [Resilient HTTP Client](#resilient-http-client)
 
 ---
 
-# Description
+## Features
 
-`pricelab-core` is the foundational shared library of the PriceLab ecosystem.
+The library is organized into two domains: **Infrastructure** (reusable technical capabilities) and **Business Logic** (
+domain-oriented abstractions).
 
-It provides reusable infrastructure and domain components that standardize the development of microservices and internal services across the platform.
+### Infrastructure Modules
 
-The library is designed with a strong focus on:
+| Module                              | Description                                                                                                                          |
+|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| **Configuration Management**        | Centralized, environment-driven config via YAML, environment variable injection, typed models, and validation                        |
+| **Logging**                         | Standardized structured logging utilities                                                                                            |
+| **Telemetry & Observability**       | Distributed tracing, metrics collection, OpenTelemetry integration, request lifecycle tracking, and error monitoring                 |
+| **HTTP Client Utilities**           | Asynchronous HTTP clients with retry policies, circuit breaker integration, timeout management, request tracing, and fault tolerance |
+| **Serialization / Deserialization** | JSON, HashMap, and binary serialization with typed model conversion, schema validation, and DTO mapping                              |
+| **Scientific computation engine**   | Numerical computing and data analysis                                                                                                |
+| **Profiler**                        | Performance profiling and optimization                                                                                               |
+| **File handler**                    | File handling utilities                                                                                                              |
+| ...                                 | ...                                                                                                                                  |
 
-- Modularity
-- Reusability
-- Maintainability
+### Business Logic Modules
 
----
-
-# Features
-
-The library is organized into two primary domains:
-
-- [Infrastructure](#infrastructure)
-- [Business Logic](#business-logic)
-
----
-
-# Infrastructure
-
-Infrastructure modules provide reusable technical capabilities shared across services.
-
-## Included Components
-
-### Logging
-
-Provides standardized and structured logging utilities.
-
-Features:
-- Structured logs
+| Module                   | Description                                                                                   |
+|--------------------------|-----------------------------------------------------------------------------------------------|
+| **Core Domain Models**   | Shared business entities and value objects (e.g. Candles/Quotes, time-series, pricing models) |
+| **Validation Utilities** | Schema validation, business rule enforcement, and constraint validation                       |
 
 ---
 
-### Telemetry and Observability
+## Installation
 
-Provides integration with observability platforms.
-
-Features:
-- Distributed tracing
-- Metrics collection
-- OpenTelemetry integration
-- Request lifecycle tracking
-- Error monitoring
-
----
-
-### Configuration Management
-
-Provides centralized and environment-driven configuration handling.
-
-Features:
-- YAML configuration support
-- Environment variable injection
-- Typed configuration models
-- Validation utilities
-
----
-
-### HTTP Client Utilities
-
-Provides resilient and extensible HTTP communication utilities.
-
-Features:
-- Asynchronous HTTP clients
-- Retry policies
-- Circuit breaker integration
-- Timeout management
-- Request tracing
-- Fault tolerance
-
----
-
-### Serialization and Deserialization
-
-Provides utilities for object transformation and schema handling.
-
-Features:
-- JSON/HashMap/Binary serialization/deserialization
-- Typed model conversion
-- Schema validation
-- DTO mapping
-
----
-
-# Business Logic
-
-Business modules provide reusable domain-oriented abstractions.
-
-## Included Components
-
-### Core Domain Models
-
-Shared business entities and value objects used across services.
-
-Examples:
-- Candles/Quotes
-- Time-series
-- Pricing models
-
----
-
-### Validation Utilities
-
-Provides reusable validation mechanisms.
-
-Features:
-- Schema validation
-- Business rule enforcement
-- Constraint validation
-
----
-
-# Installation
-
-## Stable Version
-
-Install the latest stable version from PyPI:
+**Stable release** (recommended for production):
 
 ```bash
 pip install pricelab-core
 ```
 
----
-
-## Test Environment Installation
-
-Install the latest development version from the Test PyPI repository:
+**Development build** (latest features, may be unstable):
 
 ```bash
 pip install -i https://test.pypi.org/simple/ pricelab-core
 ```
-
 > [!WARNING]
-> The Test PyPI version includes the latest experimental features and improvements but may not be stable.
-> It is intended exclusively for development and testing purposes and should **not** be used in production environments.
+> The development build is intended for testing only and should **not** be used in production.
 
 ---
 
-# Example Usage
+## Usage Examples
 
-The following example demonstrates how to build a resilient asynchronous HTTP client using:
+### Microservice Configuration
 
-- Asynchronous HTTP communication
-- Retry mechanisms
-- Circuit breaker protection
-- Telemetry and observability integration
+Services are configured using YAML files combined with environment variables.
 
----
+#### Architecture
 
-## Architecture Overview
+``` mermaid
+flowchart LR
+    A(Connector) --> D(Root configuration)
+    B(Operation)  --> D
+    C(Operation)  --> D
+    D --> E(Schema validation)
+    E --> F(Configuration model)
+```
 
-```text
-                    +----------------------+
-                    |  Resilient Client    |
-                    +----------+-----------+
-                               |
-         +---------------------+---------------------+
-         |                     |                     |
-         ▼                     ▼                     ▼
-+----------------+   +----------------+   +----------------+
-| Retry Policy   |   | CircuitBreaker |   | Telemetry      |
-+----------------+   +----------------+   +----------------+
-                               |
-                               ▼
-                    +----------------------+
-                    |  Async HTTP Client   |
-                    +----------+-----------+
-                               |
-                               ▼
-                    +----------------------+
-                    | External API Service |
-                    +----------------------+
+
+#### Environment Variables
+
+| Variable                   | Description                      |
+|----------------------------|----------------------------------|
+| `APP_ENV`                  | Application environment          |
+| `CONFIGURATION_DIR`        | Root configuration directory     |
+| `<CONNECTOR_NAME>_API_KEY` | API key for a specific connector |
+| `DB_HOST`                  | Database host                    |
+| `DB_PORT`                  | Database port                    |
+| `DB_NAME`                  | Database name                    |
+| `DB_USER`                  | Database username                |
+| `DB_PASSWORD`              | Database password                |
+
+#### Directory Structure
+
+| Path         | Description                                 |
+|--------------|---------------------------------------------|
+| `connector/` | Data source connector definitions           |
+| `operation/` | Retrieval operations and business use cases |
+| `cronjob/`   | Scheduled job definitions                   |
+| `root.yml`   | Root application configuration              |
+
+**Example layout:**
+
+```
+<env>/
+├── connector/
+│   ├── api.yml
+│   ├── database.yml
+│   ├── file.yml
+│   └── telemetry.yml
+├── cronjob/
+│   └── intraday_stock.yml
+├── operation/
+│   └── intraday_stock.yml
+└── root.yml
+```
+
+#### YAML Configuration Reference
+
+**Connector** (`connector/<tag>.yml`)
+
+```yaml
+connector:
+  <connector_tag>:
+    name: <connector name>
+    type: api
+    base_url: <base url>
+    timeout: 5
+    retry: 3
+    auth:
+      type: token
+      key_name: apikey
+      key_value: ${oc.env:connector_api_key}
+```
+
+**Operation** (`operation/<tag>.yml`)
+
+```yaml
+operation:
+  <operation_tag>:
+    name: <operation name>
+    connector: ${connector.connector_tag}
+    endpoint: <endpoint>
+    method: GET
+    parameters:
+      <parameter1>: <value1>
+      <parameter2>: <value2>
+```
+
+**Cronjob** (`cronjob/<tag>.yml`)
+
+```yaml
+cronjob:
+  <cronjob_tag>:
+    name: <cronjob name>
+    operation: ${operation.operation_tag}
+    cron: "*/5 9-17 * * 1-5"
 ```
 
 ---
 
-## Complete Example
+### Resilient HTTP Client
+
+This example builds a fault-tolerant async HTTP client with retry logic, circuit breaking, and observability.
+
+#### Architecture
+
+```mermaid
+flowchart LR
+    R(HTTP Client) --> A(Resilient HTTP Client)
+    B(Retry) --> A
+    C(Circuit Breaker) --> A
+    D(Telemetry) --> A
+    A --> E(Async HTTP Client)
+    E --> F(External API Service)
+```
+
+#### Complete Example
 
 ```python
-# Create the base asynchronous HTTP client
+# Base async HTTP client
 base_client: HttpClient = AioHttpClient(base_url="<base url>")
 
-# Configure retry policy
+# Retry policy: up to 3 attempts, 1-second delay between retries
 retry_policy: Retry = RetryPolicy(
     RetrySettings(max_attempts=3, delay_seconds=1)
 )
 
-# Configure circuit breaker
+# Circuit breaker: opens after 5 failures, recovers after 30 seconds
 circuit_breaker: CircuitBreaker = CircuitBreakerPolicy(
     CircuitBreakerSettings(failure_threshold=5, recovery_timeout=30)
 )
 
-# Configure telemetry
+# Telemetry via OpenTelemetry
 telemetry: Telemetry = OpenTelemetryManager(service_name="<external api name>")
 
-# Create resilient HTTP client
+# Compose the resilient client
 client: ResilientHttpClient = ResilientClient(
     base_client=base_client,
     circuit_breaker=circuit_breaker,
     retry_policy=retry_policy,
     trace_manager=telemetry,
 )
+
 
 async def fetch_intraday_stock() -> None:
     try:
@@ -228,11 +221,10 @@ async def fetch_intraday_stock() -> None:
         }
 
         response = await client.get("/<endpoint>", params=params)
-
         print(response)
 
     finally:
-        # Gracefully shutdown resources
+        # Always clean up resources
         await client.close()
         telemetry.shutdown()
 ```
